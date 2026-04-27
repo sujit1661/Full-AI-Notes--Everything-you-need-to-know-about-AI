@@ -29,6 +29,9 @@
 
 ---
 
+
+---
+
 ## 1. Artificial Intelligence (AI)
 
 Artificial Intelligence is the ability of machines to simulate human intelligence such as learning, reasoning, problem-solving, and decision-making.
@@ -63,6 +66,13 @@ AI
     +-- Deep Learning
         +-- LLMs / Transformers
 ```
+
+---
+
+
+> ---
+> **Section Summary:** AI is the broad field of making machines intelligent. It has 3 types: Narrow AI (exists today), General AI (research goal), Super AI (theoretical). Everything in ML and DL is a subset of AI. The key hierarchy is AI > ML > DL > LLMs.
+
 
 ---
 
@@ -155,6 +165,13 @@ Unsupervised:
 
 ---
 
+
+> ---
+> **Section Summary:** ML lets machines learn from data without explicit rules. 3 main types: Supervised (labeled data), Unsupervised (find patterns), Reinforcement (reward/penalty). Key concepts to know for interviews: overfitting vs underfitting, bias vs variance, train/val/test split, evaluation metrics (Accuracy, Precision, Recall, F1, ROC-AUC for classification; MAE, MSE, RMSE, R2 for regression), and common algorithms (Linear/Logistic Regression, Decision Tree, Random Forest, XGBoost, SVM, KNN).
+
+
+---
+
 ## 3. Deep Learning (DL)
 
 Deep Learning is a subset of Machine Learning that uses artificial neural networks with multiple hidden layers to learn complex patterns from large amounts of data.
@@ -241,6 +258,13 @@ Early Stopping -- stop training when validation loss stops improving
 - Encoder compresses input into a smaller representation (latent space)
 - Decoder reconstructs the original from that compressed form
 - Used in: anomaly detection, dimensionality reduction, denoising
+
+---
+
+
+> ---
+> **Section Summary:** DL uses multi-layer neural networks to learn complex patterns. Training flow: Forward Pass > Loss > Backprop > Optimizer > Repeat. Key activation functions: ReLU (hidden layers), Sigmoid (binary output), Softmax (multi-class). Regularization: Dropout, L1/L2, Batch Norm, Early Stopping. Network types: CNN (images), RNN/LSTM (sequences), Transformer (NLP, foundation of all LLMs), GAN (generation), Autoencoder (compression/anomaly).
+
 
 ---
 
@@ -338,380 +362,12 @@ Summary memory     -- summarizes old conversation to save tokens
 
 ---
 
-## 6. NLP - Natural Language Processing
 
-**NLP** - Branch of AI that helps computers understand, process, and work with human language.
+> ---
+> **Section Summary:** GenAI creates new content (text, image, code) from learned patterns. Agentic AI goes further -- it plans, decides, and acts autonomously using a Goal > Plan > Act > Observe > Loop cycle. Tool calling is how LLMs interact with the real world (search, DB, APIs). Memory types: buffer (last N messages), summary (compressed history), vector (semantic retrieval), entity (tracks facts). These are the building blocks of every AI agent you will build.
 
-**NLU (Natural Language Understanding)** - Focuses on understanding the meaning and intent behind human language. Not just words, but the real intention.
-
-**NLG (Natural Language Generation)** - Focuses on generating human-like text or speech from data.
-
-### Text Preprocessing Pipeline
-```
-Raw Text
-  --> Lowercasing
-  --> Remove punctuation / special characters
-  --> Tokenization (split into words/tokens)
-  --> Stop word removal (remove "the", "is", "a")
-  --> Stemming or Lemmatization
-  --> Vectorization (TF-IDF, Word2Vec, or Embeddings)
-```
-
-### Stemming vs Lemmatization
-
-**Stemming** - Removes prefixes/suffixes using simple rules. May not produce a real word.
-```
-playing --> play
-studies --> studi
-running --> run
-caring  --> care
-```
-
-**Lemmatization** - Converts to proper dictionary base form using language rules.
-```
-playing --> play
-studies --> study
-better  --> good
-running --> run
-```
-
-### Text Vectorization Techniques
-
-**TF-IDF (Term Frequency-Inverse Document Frequency)**
-- Measures how important a word is in a document relative to a collection
-- Common words get lower scores, rare but relevant words get higher scores
-
-**Word2Vec**
-- Converts words to dense vectors where similar words are close in vector space
-- "king" - "man" + "woman" = "queen"
-
-**Sentence Transformers / BERT Embeddings**
-- Converts entire sentences to vectors capturing full context
-- Much better than Word2Vec for semantic search and RAG
-
-### Attention Mechanism
-
-Attention lets the model focus on the most relevant parts of the input when generating each output token.
-
-```
-Input: "The cat sat on the mat because it was soft"
-When predicting what "it" refers to:
-  --> Model pays HIGH attention to "mat"
-  --> Model pays LOW attention to "cat", "sat"
-```
-
-Self-attention = attention within the same sequence (used in transformers)
 
 ---
-
-## 7. LLMs - Large Language Models
-
-### Model Types
-
-- **LLM (Large Language Model)** - AI model trained on massive text data to understand and generate human-like language. Examples: GPT-4, Claude, Gemini, LLaMA
-- **SLM (Small Language Model)** - Smaller, faster, cheaper version. Examples: Phi-3, Gemma, Mistral 7B
-- **VLM (Vision Language Model)** - Understands both images and text. Examples: GPT-4V, LLaVA, Gemini Vision
-- **Multimodal Model** - Handles text, image, audio, video together. Example: GPT-4o
-
-### How LLMs Work - Full Flow
-
-```
-User Input (text)
-      |
-      v
-Tokenization --> split text into tokens
-      |
-      v
-Embedding Layer --> tokens become vectors
-      |
-      v
-Transformer Layers (Self-Attention + Feed-Forward)
-      |
-      v
-[Optional] Fine-Tuning / RLHF
-      |
-      v
-Decoding (greedy / top-k / top-p / temperature)
-      |
-      v
-Detokenization --> vectors back to text
-      |
-      v
-[Optional] Hallucination Check / RAG Grounding
-      |
-      v
-Final Output to User
-```
-
-### Fine-Tuning
-
-Fine-tuning = take a pre-trained model + train it further on smaller domain-specific data.
-
-```
-Pre-trained model  --> general knowledge (trained on internet-scale data)
-Fine-tuned model   --> specialized (e.g., medical, legal, coding assistant)
-```
-
-**Techniques:**
-- Supervised Fine-Tuning (SFT) - train on labeled instruction-response pairs
-- RLHF (Reinforcement Learning from Human Feedback) - humans rate outputs, model improves
-- LoRA (Low-Rank Adaptation) - fine-tune only a small subset of weights, very efficient
-- QLoRA - LoRA + quantization, runs on consumer GPUs
-
-### Context Window
-
-The context window is the maximum amount of text (tokens) an LLM can process at once.
-
-```
-GPT-3.5      --> 4K tokens
-GPT-4        --> 8K / 32K tokens
-GPT-4 Turbo  --> 128K tokens
-Claude 3     --> 200K tokens
-Gemini 1.5   --> 1M tokens
-```
-
-> 1 token is approximately 0.75 words. "Hello world" = 2 tokens.
-
-### Hallucination Solutions
-
-1. RAG - Fetch real data before generating
-2. Fine-Tuning - Train on domain-specific accurate data
-3. Prompt Engineering - "Answer only from context. Say I don't know if unsure."
-4. Lower Temperature - More deterministic outputs
-5. Chain-of-Thought - Guide reasoning step by step
-6. Tool Calling - Use external APIs for real data
-7. Post-Generation Verification - Second model checks the output
-8. Human-in-the-Loop - Manual review for critical outputs
-9. Better Training Data - Clean, diverse, up-to-date datasets
-10. Confidence Thresholding - Model says "I don't know" when confidence is low
-
-### Popular LLM Providers
-
-```
-OpenAI      --> GPT-4, GPT-4o, GPT-4.1
-Anthropic   --> Claude 3.5 Sonnet, Claude 3 Opus
-Google      --> Gemini 1.5 Pro, Gemini Flash
-Meta        --> LLaMA 3.1, LLaMA 3.2 (open source)
-Mistral     --> Mistral 7B, Mixtral (open source)
-Groq        --> Fast inference API (runs LLaMA, Mixtral on LPU hardware)
-HuggingFace --> Hub for open-source models
-```
-
----
-
-## 8. LLM Parameters
-
-### model
-```python
-model="gpt-4.1"          # OpenAI GPT-4.1
-model="qwen/qwen3-32b"   # Qwen 32B
-model="gpt-5-mini"       # faster, cheaper
-```
-
-### messages
-```python
-messages=[
-    {"role": "system",    "content": "You are a helpful tutor"},
-    {"role": "user",      "content": "Explain RAG"},
-    {"role": "assistant", "content": "RAG stands for..."},
-    {"role": "user",      "content": "Give me an example"}
-]
-```
-
-### temperature (0.0 to 1.0+)
-Controls randomness. Negative values cause error or default to 0. Values > 2 risk hallucination.
-```python
-temperature=0.1   # factual (math, code)
-temperature=0.7   # balanced
-temperature=1.0   # creative writing
-```
-> Low = accurate and repeatable | High = creative and diverse
-
-### top_p (0.0 to 1.0)
-Nucleus sampling. Model picks from smallest set of tokens whose cumulative probability = top_p.
-```python
-top_p=0.5   # strict word choices
-top_p=0.9   # balanced
-top_p=1.0   # all words allowed
-```
-
-### top_k
-Limits model to choose from only top K most probable tokens.
-
-### max_completion_tokens
-```python
-max_completion_tokens=256    # short answer
-max_completion_tokens=1024   # detailed
-max_completion_tokens=4096   # long doc
-```
-
-### stream
-```python
-stream=True    # live typing effect (token by token)
-stream=False   # full response at once
-```
-
-### stop
-```python
-stop=["END"]
-stop=["###"]
-stop=["\n\n"]
-```
-
-### presence_penalty and frequency_penalty
-```python
-presence_penalty=0.5    # encourages new topics
-frequency_penalty=0.3   # reduces word repetition
-```
-
-### seed
-```python
-seed=42   # same seed = same output (reproducible)
-```
-
-### response_format
-```python
-response_format={"type": "json_object"}   # force JSON output
-response_format={"type": "text"}
-```
-
-### tool_choice
-```python
-tool_choice="auto"      # model decides when to use tools
-tool_choice="none"      # tools disabled
-tool_choice="required"  # must use a tool
-```
-
-### Other Parameters
-```python
-n=3                       # generate 3 different responses
-reasoning_effort="high"   # deep step-by-step thinking
-logprobs=True             # return token probabilities
-timeout=30                # API timeout in seconds
-parallel_tool_calls=True  # run multiple tools simultaneously
-user="sujit_01"           # identify end user for logging
-```
-
----
-
-## 9. RAG - Retrieval-Augmented Generation
-
-RAG is an AI framework that combines information retrieval with text generation. The model first retrieves relevant external knowledge from a database or document store, then uses that retrieved information to generate accurate, context-aware responses.
-
-**Why RAG?**
-- LLMs have a knowledge cutoff date
-- LLMs can hallucinate facts
-- RAG grounds responses in real, up-to-date documents
-
-### Phase 1: Indexing Phase (Data Ingestion)
-
-```
-Raw Documents (PDF, DOCX, Excel, Images with OCR)
-      |
-      v
-Step 1: Document Loading
-      |  (LangChain loaders: PyPDFLoader, UnstructuredLoader, etc.)
-      v
-Step 2: Chunking (text_splitters)
-      |  chunk_size=500, chunk_overlap=50
-      v
-Step 3: Embedding Generation
-      |  (HuggingFace all-MiniLM-L6-v2 --> 384-dim vectors)
-      |  (OpenAI text-embedding-3-small --> 1536-dim vectors)
-      v
-Step 4: Store in Vector DB
-         (ChromaDB / Qdrant / Pinecone / FAISS)
-```
-
-**Chunking explained:**
-- chunk_size: max tokens per chunk (fits LLM context limit)
-- chunk_overlap: shared tokens between consecutive chunks (preserves context at boundaries)
-
-```python
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=50,
-    separators=["\n\n", "\n", ".", " "]
-)
-chunks = splitter.split_documents(docs)
-```
-
-**Embedding + Store in ChromaDB:**
-```python
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
-
-embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-vectorstore = Chroma.from_documents(chunks, embeddings, persist_directory="./chroma_db")
-vectorstore.persist()
-```
-
-### Phase 2: Retrieving Phase (Query Time)
-
-```
-User Query
-      |
-      v
-Step 1: Embed the query (same embedding model)
-      |
-      v
-Step 2: Cosine Similarity Search in Vector DB
-      |  --> returns top-k most relevant chunks
-      v
-Step 3: Rank and assemble context
-      |
-      v
-Step 4: Pass [context + query] to LLM
-      |
-      v
-Final Answer
-```
-
-**Retrieval + Generation:**
-```python
-# Load existing vector store
-vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
-retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
-
-# Retrieve relevant chunks
-docs = retriever.get_relevant_documents("What is the project deadline?")
-
-# Build context
-context = "\n\n".join([doc.page_content for doc in docs])
-
-# Send to LLM
-prompt = f"Answer based on context only:\n\nContext:\n{context}\n\nQuestion: {query}"
-```
-
-### Advanced RAG Techniques
-
-**Hybrid Search** - Combine vector search + keyword search (BM25) for better results
-
-**Re-ranking** - After retrieval, use a cross-encoder model to re-rank chunks by relevance
-
-**HyDE (Hypothetical Document Embeddings)** - Generate a hypothetical answer first, embed it, then search
-
-**Parent-Child Chunking** - Store small chunks for retrieval but pass larger parent chunks to LLM for context
-
-**Self-Query Retriever** - LLM generates structured filters from natural language query
-
-### Vector DB Comparison
-
-| Tool | Type | Best For |
-|------|------|----------|
-| ChromaDB | Open-source local | Local/small-scale RAG, plug-and-play |
-| Pinecone | Managed cloud | Production, high-speed search |
-| Qdrant | Open-source | Strong filtering, flexible deployment |
-| FAISS (Meta) | Library | High-performance local retrieval |
-| Weaviate | Open-source | Hybrid queries, classification |
-| Milvus | Open-source | Large-scale embedding storage |
-| Astra DB | Managed cloud | Cassandra-based, scalable |
-| ElasticSearch | Search engine | Hybrid vector + keyword search |
-
----
-
 
 ## 5. Prompt Engineering - Complete Guide
 
@@ -993,6 +649,416 @@ print(result.title, result.rating)  # Inception  9.0
 # LLM output is text. Parser extracts structured data and validates types.
 # If LLM returns wrong format, parser raises a clear error.
 ```
+
+---
+
+
+> ---
+> **Section Summary:** Prompt engineering is how you get the best output from an LLM. Key techniques: Zero-Shot (direct ask), Few-Shot (give examples), CoT (think step by step), ReAct (reason + act loop), Role Prompting (assign persona). Always be specific about format, length, and constraints. Use LangChain PromptTemplate for dynamic prompts and Output Parsers (Str, JSON, Pydantic) to structure LLM responses. Defend against prompt injection by sanitizing inputs. Count tokens with tiktoken to avoid exceeding context limits.
+
+
+---
+
+## 6. NLP - Natural Language Processing
+
+**NLP** - Branch of AI that helps computers understand, process, and work with human language.
+
+**NLU (Natural Language Understanding)** - Focuses on understanding the meaning and intent behind human language. Not just words, but the real intention.
+
+**NLG (Natural Language Generation)** - Focuses on generating human-like text or speech from data.
+
+### Text Preprocessing Pipeline
+```
+Raw Text
+  --> Lowercasing
+  --> Remove punctuation / special characters
+  --> Tokenization (split into words/tokens)
+  --> Stop word removal (remove "the", "is", "a")
+  --> Stemming or Lemmatization
+  --> Vectorization (TF-IDF, Word2Vec, or Embeddings)
+```
+
+### Stemming vs Lemmatization
+
+**Stemming** - Removes prefixes/suffixes using simple rules. May not produce a real word.
+```
+playing --> play
+studies --> studi
+running --> run
+caring  --> care
+```
+
+**Lemmatization** - Converts to proper dictionary base form using language rules.
+```
+playing --> play
+studies --> study
+better  --> good
+running --> run
+```
+
+### Text Vectorization Techniques
+
+**TF-IDF (Term Frequency-Inverse Document Frequency)**
+- Measures how important a word is in a document relative to a collection
+- Common words get lower scores, rare but relevant words get higher scores
+
+**Word2Vec**
+- Converts words to dense vectors where similar words are close in vector space
+- "king" - "man" + "woman" = "queen"
+
+**Sentence Transformers / BERT Embeddings**
+- Converts entire sentences to vectors capturing full context
+- Much better than Word2Vec for semantic search and RAG
+
+### Attention Mechanism
+
+Attention lets the model focus on the most relevant parts of the input when generating each output token.
+
+```
+Input: "The cat sat on the mat because it was soft"
+When predicting what "it" refers to:
+  --> Model pays HIGH attention to "mat"
+  --> Model pays LOW attention to "cat", "sat"
+```
+
+Self-attention = attention within the same sequence (used in transformers)
+
+---
+
+
+> ---
+> **Section Summary:** NLP is the AI branch for understanding and generating human language. NLU = understanding intent, NLG = generating text. Standard preprocessing pipeline: lowercase > remove punctuation > tokenize > remove stopwords > lemmatize. Stemming is fast but may produce non-words (studies->studi). Lemmatization is slower but always produces real words (studies->study). For modern RAG, use Sentence Transformers (all-MiniLM-L6-v2) instead of TF-IDF or Word2Vec -- they capture full sentence meaning in a single vector.
+
+
+---
+
+## 7. LLMs - Large Language Models
+
+### Model Types
+
+- **LLM (Large Language Model)** - AI model trained on massive text data to understand and generate human-like language. Examples: GPT-4, Claude, Gemini, LLaMA
+- **SLM (Small Language Model)** - Smaller, faster, cheaper version. Examples: Phi-3, Gemma, Mistral 7B
+- **VLM (Vision Language Model)** - Understands both images and text. Examples: GPT-4V, LLaVA, Gemini Vision
+- **Multimodal Model** - Handles text, image, audio, video together. Example: GPT-4o
+
+### How LLMs Work - Full Flow
+
+```
+User Input (text)
+      |
+      v
+Tokenization --> split text into tokens
+      |
+      v
+Embedding Layer --> tokens become vectors
+      |
+      v
+Transformer Layers (Self-Attention + Feed-Forward)
+      |
+      v
+[Optional] Fine-Tuning / RLHF
+      |
+      v
+Decoding (greedy / top-k / top-p / temperature)
+      |
+      v
+Detokenization --> vectors back to text
+      |
+      v
+[Optional] Hallucination Check / RAG Grounding
+      |
+      v
+Final Output to User
+```
+
+### Fine-Tuning
+
+Fine-tuning = take a pre-trained model + train it further on smaller domain-specific data.
+
+```
+Pre-trained model  --> general knowledge (trained on internet-scale data)
+Fine-tuned model   --> specialized (e.g., medical, legal, coding assistant)
+```
+
+**Techniques:**
+- Supervised Fine-Tuning (SFT) - train on labeled instruction-response pairs
+- RLHF (Reinforcement Learning from Human Feedback) - humans rate outputs, model improves
+- LoRA (Low-Rank Adaptation) - fine-tune only a small subset of weights, very efficient
+- QLoRA - LoRA + quantization, runs on consumer GPUs
+
+### Context Window
+
+The context window is the maximum amount of text (tokens) an LLM can process at once.
+
+```
+GPT-3.5      --> 4K tokens
+GPT-4        --> 8K / 32K tokens
+GPT-4 Turbo  --> 128K tokens
+Claude 3     --> 200K tokens
+Gemini 1.5   --> 1M tokens
+```
+
+> 1 token is approximately 0.75 words. "Hello world" = 2 tokens.
+
+### Hallucination Solutions
+
+1. RAG - Fetch real data before generating
+2. Fine-Tuning - Train on domain-specific accurate data
+3. Prompt Engineering - "Answer only from context. Say I don't know if unsure."
+4. Lower Temperature - More deterministic outputs
+5. Chain-of-Thought - Guide reasoning step by step
+6. Tool Calling - Use external APIs for real data
+7. Post-Generation Verification - Second model checks the output
+8. Human-in-the-Loop - Manual review for critical outputs
+9. Better Training Data - Clean, diverse, up-to-date datasets
+10. Confidence Thresholding - Model says "I don't know" when confidence is low
+
+### Popular LLM Providers
+
+```
+OpenAI      --> GPT-4, GPT-4o, GPT-4.1
+Anthropic   --> Claude 3.5 Sonnet, Claude 3 Opus
+Google      --> Gemini 1.5 Pro, Gemini Flash
+Meta        --> LLaMA 3.1, LLaMA 3.2 (open source)
+Mistral     --> Mistral 7B, Mixtral (open source)
+Groq        --> Fast inference API (runs LLaMA, Mixtral on LPU hardware)
+HuggingFace --> Hub for open-source models
+```
+
+---
+
+
+> ---
+> **Section Summary:** LLMs are trained on massive text data to understand and generate language. Types: LLM (text), SLM (smaller/faster), VLM (vision+text), Multimodal (text+image+audio). Full flow: Tokenize > Embed > Transformer layers > Decode > Output. Fine-tuning adapts a pre-trained model to a specific domain (SFT, RLHF, LoRA, QLoRA). Context window = max tokens the model can process at once (GPT-4: 128K, Claude 3: 200K). Hallucination is the biggest risk -- fix with RAG, lower temperature, CoT, and tool calling.
+
+
+---
+
+## 8. LLM Parameters
+
+### model
+```python
+model="gpt-4.1"          # OpenAI GPT-4.1
+model="qwen/qwen3-32b"   # Qwen 32B
+model="gpt-5-mini"       # faster, cheaper
+```
+
+### messages
+```python
+messages=[
+    {"role": "system",    "content": "You are a helpful tutor"},
+    {"role": "user",      "content": "Explain RAG"},
+    {"role": "assistant", "content": "RAG stands for..."},
+    {"role": "user",      "content": "Give me an example"}
+]
+```
+
+### temperature (0.0 to 1.0+)
+Controls randomness. Negative values cause error or default to 0. Values > 2 risk hallucination.
+```python
+temperature=0.1   # factual (math, code)
+temperature=0.7   # balanced
+temperature=1.0   # creative writing
+```
+> Low = accurate and repeatable | High = creative and diverse
+
+### top_p (0.0 to 1.0)
+Nucleus sampling. Model picks from smallest set of tokens whose cumulative probability = top_p.
+```python
+top_p=0.5   # strict word choices
+top_p=0.9   # balanced
+top_p=1.0   # all words allowed
+```
+
+### top_k
+Limits model to choose from only top K most probable tokens.
+
+### max_completion_tokens
+```python
+max_completion_tokens=256    # short answer
+max_completion_tokens=1024   # detailed
+max_completion_tokens=4096   # long doc
+```
+
+### stream
+```python
+stream=True    # live typing effect (token by token)
+stream=False   # full response at once
+```
+
+### stop
+```python
+stop=["END"]
+stop=["###"]
+stop=["\n\n"]
+```
+
+### presence_penalty and frequency_penalty
+```python
+presence_penalty=0.5    # encourages new topics
+frequency_penalty=0.3   # reduces word repetition
+```
+
+### seed
+```python
+seed=42   # same seed = same output (reproducible)
+```
+
+### response_format
+```python
+response_format={"type": "json_object"}   # force JSON output
+response_format={"type": "text"}
+```
+
+### tool_choice
+```python
+tool_choice="auto"      # model decides when to use tools
+tool_choice="none"      # tools disabled
+tool_choice="required"  # must use a tool
+```
+
+### Other Parameters
+```python
+n=3                       # generate 3 different responses
+reasoning_effort="high"   # deep step-by-step thinking
+logprobs=True             # return token probabilities
+timeout=30                # API timeout in seconds
+parallel_tool_calls=True  # run multiple tools simultaneously
+user="sujit_01"           # identify end user for logging
+```
+
+---
+
+
+> ---
+> **Section Summary:** Key parameters to know: temperature (0=deterministic, 1=creative), top_p (nucleus sampling, limits token pool), top_k (limits to top K tokens), max_tokens (output length limit), stream (token-by-token response), stop (stop generation on string), presence_penalty (encourages new topics), frequency_penalty (reduces repetition), seed (reproducible output), response_format (force JSON), tool_choice (auto/none/required). Rule: tune temperature OR top_p, not both at extremes. Use seed for reproducible testing.
+
+
+---
+
+## 9. RAG - Retrieval-Augmented Generation
+
+RAG is an AI framework that combines information retrieval with text generation. The model first retrieves relevant external knowledge from a database or document store, then uses that retrieved information to generate accurate, context-aware responses.
+
+**Why RAG?**
+- LLMs have a knowledge cutoff date
+- LLMs can hallucinate facts
+- RAG grounds responses in real, up-to-date documents
+
+### Phase 1: Indexing Phase (Data Ingestion)
+
+```
+Raw Documents (PDF, DOCX, Excel, Images with OCR)
+      |
+      v
+Step 1: Document Loading
+      |  (LangChain loaders: PyPDFLoader, UnstructuredLoader, etc.)
+      v
+Step 2: Chunking (text_splitters)
+      |  chunk_size=500, chunk_overlap=50
+      v
+Step 3: Embedding Generation
+      |  (HuggingFace all-MiniLM-L6-v2 --> 384-dim vectors)
+      |  (OpenAI text-embedding-3-small --> 1536-dim vectors)
+      v
+Step 4: Store in Vector DB
+         (ChromaDB / Qdrant / Pinecone / FAISS)
+```
+
+**Chunking explained:**
+- chunk_size: max tokens per chunk (fits LLM context limit)
+- chunk_overlap: shared tokens between consecutive chunks (preserves context at boundaries)
+
+```python
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=50,
+    separators=["\n\n", "\n", ".", " "]
+)
+chunks = splitter.split_documents(docs)
+```
+
+**Embedding + Store in ChromaDB:**
+```python
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+
+embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+vectorstore = Chroma.from_documents(chunks, embeddings, persist_directory="./chroma_db")
+vectorstore.persist()
+```
+
+### Phase 2: Retrieving Phase (Query Time)
+
+```
+User Query
+      |
+      v
+Step 1: Embed the query (same embedding model)
+      |
+      v
+Step 2: Cosine Similarity Search in Vector DB
+      |  --> returns top-k most relevant chunks
+      v
+Step 3: Rank and assemble context
+      |
+      v
+Step 4: Pass [context + query] to LLM
+      |
+      v
+Final Answer
+```
+
+**Retrieval + Generation:**
+```python
+# Load existing vector store
+vectorstore = Chroma(persist_directory="./chroma_db", embedding_function=embeddings)
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+# Retrieve relevant chunks
+docs = retriever.get_relevant_documents("What is the project deadline?")
+
+# Build context
+context = "\n\n".join([doc.page_content for doc in docs])
+
+# Send to LLM
+prompt = f"Answer based on context only:\n\nContext:\n{context}\n\nQuestion: {query}"
+```
+
+### Advanced RAG Techniques
+
+**Hybrid Search** - Combine vector search + keyword search (BM25) for better results
+
+**Re-ranking** - After retrieval, use a cross-encoder model to re-rank chunks by relevance
+
+**HyDE (Hypothetical Document Embeddings)** - Generate a hypothetical answer first, embed it, then search
+
+**Parent-Child Chunking** - Store small chunks for retrieval but pass larger parent chunks to LLM for context
+
+**Self-Query Retriever** - LLM generates structured filters from natural language query
+
+### Vector DB Comparison
+
+| Tool | Type | Best For |
+|------|------|----------|
+| ChromaDB | Open-source local | Local/small-scale RAG, plug-and-play |
+| Pinecone | Managed cloud | Production, high-speed search |
+| Qdrant | Open-source | Strong filtering, flexible deployment |
+| FAISS (Meta) | Library | High-performance local retrieval |
+| Weaviate | Open-source | Hybrid queries, classification |
+| Milvus | Open-source | Large-scale embedding storage |
+| Astra DB | Managed cloud | Cassandra-based, scalable |
+| ElasticSearch | Search engine | Hybrid vector + keyword search |
+
+---
+
+
+
+> ---
+> **Section Summary:** RAG = retrieval + generation. Solves LLM knowledge cutoff and hallucination by grounding answers in real documents. Two phases: Indexing (Load > Chunk > Embed > Store in VectorDB) and Retrieval (Embed query > Similarity search > Top-K chunks > LLM). Key decisions: chunk_size (500 chars typical), chunk_overlap (50 chars, prevents boundary loss), embedding model (BAAI/bge for free, OpenAI for quality), vector DB (ChromaDB for local, Qdrant for production). Advanced: Hybrid Search (vector+BM25), Re-ranking, MMR for diverse results.
+
 
 ---
 
@@ -1708,6 +1774,13 @@ print(result['context'])
 ```
 
 ---
+
+> ---
+> **Section Summary:** LangChain is the go-to framework for LLM apps. Core packages: langchain-core (base), langchain-openai/groq/anthropic (model integrations), langchain-community (100+ loaders/vectorstores). Key components: Models (invoke/batch/stream/async), Document Loaders (PyPDF, Web, Directory), Text Splitters (RecursiveCharacter is best general-purpose), Embeddings (HuggingFace=free, OpenAI=quality), Vector Stores (similarity/MMR/threshold search), LCEL chains (pipe syntax with RunnablePassthrough/Parallel/Lambda/Branch), Memory (SummaryBufferMemory recommended for production), Agents (OpenAI Tools agent recommended over ReAct for OpenAI models), Callbacks (track tokens, log events), Retrieval Chains (LCEL RAG chain recommended over old RetrievalQA).
+
+
+---
+
 ## 11. LangGraph - Deep Dive
 
 LangGraph builds multi-step AI workflows as directed graphs. Built on LangChain.
@@ -1944,6 +2017,13 @@ app = graph.compile(checkpointer=MemorySaver())
 ```
 
 ---
+
+> ---
+> **Section Summary:** LangGraph is for multi-step agentic workflows that need loops, branches, and shared state -- impossible in plain LangChain chains. Core concepts: State (TypedDict shared across all nodes), Nodes (functions that update state), Edges (fixed or conditional connections), START/END constants. Use Annotated[List, operator.add] for message lists so new messages append instead of replace. Checkpointing enables conversation memory and failure recovery (MemorySaver for dev, SqliteSaver for single-server, PostgresSaver for production). HITL uses interrupt_before to pause before critical nodes. Multi-agent supervisor pattern: one LLM routes tasks to specialized agents.
+
+
+---
+
 ## 12. LlamaIndex - Deep Dive
 
 LlamaIndex is a data framework for LLM apps. Best for advanced indexing and document Q&A.
@@ -2290,6 +2370,13 @@ query_engine = index.as_query_engine(
 ---
 
 
+
+> ---
+> **Section Summary:** LlamaIndex specializes in data indexing and document Q&A. SimpleDirectoryReader auto-loads 50+ file types. Node parsers: SentenceSplitter (default), SemanticSplitter (best quality, slow), SentenceWindowNodeParser (small retrieve + large context window). Index types: VectorStoreIndex (most used, semantic), SummaryIndex (summarization), KeywordTableIndex (exact match, no embeddings). Query engine response_mode: compact (default), refine (thorough), tree_summarize (many nodes), accumulate (aggregation). Chat engine chat_mode: condense_plus_context (recommended for RAG chatbots). Retrievers: QueryFusionRetriever for hybrid search, RouterRetriever for smart routing. Post-processors: FlagEmbeddingReranker for quality re-ranking.
+
+
+---
+
 ## 13. Vector Databases - Deep Dive
 
 Vector databases store embeddings and enable fast similarity search. Core to RAG, semantic search, recommendations.
@@ -2565,6 +2652,13 @@ docs = vectorstore.similarity_search("What is RAG?", k=4)
 
 ---
 
+
+> ---
+> **Section Summary:** Vector DBs store embeddings and enable fast semantic search via cosine similarity. ChromaDB: plug-and-play local DB, best for dev (get_or_create_collection, query with where filter). FAISS: Meta library, fastest local search, no filtering support, good for medium scale. Qdrant: production-grade, advanced metadata filtering, workspace isolation via FieldCondition filter. Key methods: add/upsert, search/query with k and filters, delete by ID or filter. Always store workspace_id in metadata for multi-tenant isolation. Choose: ChromaDB for local dev, Qdrant for production with filtering needs, FAISS for pure speed.
+
+
+---
+
 ## 14. MCP - Model Context Protocol
 
 MCP was developed by Anthropic. Open standard for LLMs to connect with external tools and data using one common protocol.
@@ -2648,6 +2742,13 @@ async def main():
 
 asyncio.run(main())
 ```
+
+---
+
+
+> ---
+> **Section Summary:** MCP is Anthropic's open standard for LLMs to connect with external tools and data. Before MCP every agent had custom API integrations -- messy and not reusable. MCP provides one standard protocol (like USB for AI tools). Architecture: LLM > MCP Client > MCP Server > External System. Difference from tool calling: tool calling is tightly coupled to your code, MCP is a standardized protocol where tools are discovered dynamically. MCP servers expose list_tools() and call_tool() endpoints over stdio or HTTP.
+
 
 ---
 
@@ -2749,6 +2850,13 @@ Schedule Trigger -- run on cron schedule
 
 ---
 
+
+> ---
+> **Section Summary:** An AI agent = LLM + Tools + Memory + Planning loop. The ReAct pattern (Thought > Action > Observation > repeat) is the foundation of most agents. Use create_openai_tools_agent for OpenAI models (reliable JSON tool calling) and create_react_agent for any LLM (text-based, more fragile). AgentExecutor key params: max_iterations (prevent loops), handle_parsing_errors (recover from bad output), return_intermediate_steps (see all reasoning). Add ConversationBufferWindowMemory with MessagesPlaceholder for agents that remember conversation. n8n is used for no-code agent orchestration with HTTP Request, AI Agent, If, and Loop nodes.
+
+
+---
+
 ## 16. AI Security & Safety
 
 ### Prompt Injection Defense
@@ -2843,6 +2951,13 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 # OPENAI_API_KEY=sk-abc123...
 # GROQ_API_KEY=gsk_abc123...
 ```
+
+---
+
+
+> ---
+> **Section Summary:** Key AI security threats: Prompt Injection (user hijacks LLM via malicious input -- defend with regex pattern matching), Jailbreaking (bypass safety filters -- use moderation API), Data Poisoning (malicious docs in RAG -- validate sources), PII Leakage (LLM reveals sensitive data -- redact before indexing). Always: sanitize inputs, moderate outputs with OpenAI moderation API, use HTTPBearer auth on all endpoints, store workspace_id in vector DB metadata for tenant isolation, load API keys from .env never hardcode them.
+
 
 ---
 
@@ -2957,6 +3072,13 @@ def trim_context_to_limit(chunks: list, max_tokens: int = 3000) -> list:
         total += t
     return trimmed
 ```
+
+---
+
+
+> ---
+> **Section Summary:** AI APIs are I/O bound (slow LLM calls) -- async is critical. Use AsyncOpenAI + asyncio.gather to run multiple LLM calls in parallel (10 calls x 2s = 2s total instead of 20s). Streaming (stream=True) improves perceived latency -- return tokens as they generate via SSE. Cache repeated queries with Redis (hash query+context as key, set TTL). Rate limit with slowapi (@limiter.limit). Count tokens with tiktoken and trim context to stay within limits. Production architecture: FastAPI > Auth > Rate Limit > RAG Pipeline > LLM > Cache > Stream response.
+
 
 ---
 
@@ -3176,6 +3298,13 @@ Run with:  uvicorn main:app --reload
 
 ---
 
+
+> ---
+> **Section Summary:** FastAPI is the standard for AI APIs -- async-first, Pydantic validation, auto Swagger docs. Use lifespan context manager to load embedding models and vector stores once at startup (not per request). Define Pydantic models for all request/response types with Field validators. Use Depends() for auth, settings, and shared resources. Background tasks for async document processing. StreamingResponse with text/event-stream for LLM streaming. Exception handlers for RateLimitError and APIConnectionError. File upload with UploadFile, save to tempfile, process in background. Access Swagger at /docs, ReDoc at /redoc.
+
+
+---
+
 ## 19. Python for AI Engineers
 
 ### Async / Await
@@ -3352,6 +3481,13 @@ slowapi               --> rate limiting for FastAPI
 ---
 
 
+
+> ---
+> **Section Summary:** Essential Python for AI: async/await for non-blocking LLM calls (asyncio.gather for parallel), generators for memory-efficient large dataset processing, decorators for @timer and @retry logic on API calls, Pydantic v2 for request validation (field_validator, model_validator, Field with ge/le constraints), pydantic-settings for loading config from .env with @lru_cache. Key libraries: openai, groq, anthropic, langchain-core, langgraph, chromadb, sentence-transformers, tiktoken, fastapi, uvicorn, httpx, redis, supabase, slowapi.
+
+
+---
+
 ## 20. Interview Prep - Based on Your Resume
 
 > This section is built specifically for you, Sujit. Based on your resume, projects, and skills.
@@ -3518,3 +3654,7 @@ GenKit              --> Google's framework for AI app development
 ---
 
 *Good luck Sujit. You have built real things - talk about them confidently.*
+
+
+> ---
+> **Section Summary:** Your strongest talking points: RAG Console (multi-workspace, multimodal ingestion, ChromaDB + HuggingFace embeddings, Groq inference, Supabase auth, workspace isolation via metadata filter), Multi-Agent workflow (n8n orchestration, Groq + LLaMA, HITL checkpoints, PDF report + email automation), GenAI Platform (17+ models, modular architecture, research paper). Key differentiators: 9.43 CGPA, 450+ LeetCode, national Tech Quiz 1st place, published research paper. Practice your self-intro until it flows naturally in under 90 seconds.
