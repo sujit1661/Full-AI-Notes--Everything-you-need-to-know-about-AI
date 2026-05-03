@@ -3498,15 +3498,15 @@ slowapi               --> rate limiting for FastAPI
 
 > Practice this until it feels natural. Keep it under 90 seconds.
 
-"Hi, I am Sujit Sadalage, a final-year B.Tech student in Artificial Intelligence and Data Science from SITCOE, Yadrav, with a CGPA of 9.43.
+Hi, I am Sujit Sadalage, a final-year student at Sharad Institute of Technology College of Engineering pursuing B.Tech in Artificial Intelligence and Data Science, with a CGPA of 9.43.
 
-I am a Python and AI developer focused on building real-world Generative AI and Agentic AI applications. My core work involves LLMs, RAG pipelines, LangChain, LangGraph, and FastAPI.
+I am a Python, AI, and full-stack developer focused on building real-world Generative AI and Agentic AI applications. My core expertise includes LLMs, RAG pipelines, LangChain, LangGraph, and FastAPI. Alongside AI engineering, I also have strong full-stack web development experience using HTML, CSS, JavaScript, Bootstrap, Node.js, Express.js, and PostgreSQL Global Development Group PostgreSQL, which helps me build complete production-ready AI platforms end-to-end.
 
-I have built three major projects - a full-stack Generative AI platform integrating 17+ AI models, a Multi-Agent AI Team Automation workflow using Groq and open-source LLMs with human-in-the-loop supervision, and an AI RAG Console - a multi-workspace document intelligence platform with semantic search, OCR ingestion, and Groq-powered inference.
+I have built three major projects: a full-stack Generative AI platform integrating 17+ AI models, a Multi-Agent AI Team Automation workflow using Groq and open-source LLMs with human-in-the-loop supervision, and an AI RAG Console—a multi-workspace document intelligence platform with semantic search, OCR ingestion, and Groq-powered inference.
 
-I have also solved 450+ LeetCode problems, secured 1st place in a national-level Tech Quiz, and published a research paper on my GenAI platform.
+I have also solved 450+ problems on LeetCode, secured 1st place in a national-level tech quiz, and published a research paper on my GenAI platform.
 
-I am looking for a role where I can apply my AI engineering skills to build production-grade intelligent systems."
+I am looking for an opportunity where I can apply both my AI engineering and full-stack development skills to build production-grade intelligent systems.
 
 ---
 
