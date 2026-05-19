@@ -32,7 +32,7 @@
 
 ---
 
-## 1. Artificial Intelligence (AI)
+## 1. Artificial Intelligence (AI).
 
 Artificial Intelligence is the ability of machines to simulate human intelligence such as learning, reasoning, problem-solving, and decision-making.
 AI makes machines capable of thinking and acting like humans.
