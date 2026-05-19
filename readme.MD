@@ -4209,3 +4209,2664 @@ GenKit              --> Google's framework for AI app development
 
 > ---
 > **Section Summary:** Your strongest talking points: RAG Console (multi-workspace, multimodal ingestion, ChromaDB + HuggingFace embeddings, Groq inference, Supabase auth, workspace isolation via metadata filter), Multi-Agent workflow (n8n orchestration, Groq + LLaMA, HITL checkpoints, PDF report + email automation), GenAI Platform (17+ models, modular architecture, research paper). Key differentiators: 9.43 CGPA, 450+ LeetCode, national Tech Quiz 1st place, published research paper. Practice your self-intro until it flows naturally in under 90 seconds.
+
+
+---
+
+## 21. Python Basics - Tricky Interview Questions
+
+> These are the questions that trip up even experienced developers. Interviewers love these because they reveal whether you truly understand Python or just use it.
+
+---
+
+### Q1. What is the difference between `is` and `==`?
+```python
+a = [1, 2, 3]
+b = [1, 2, 3]
+print(a == b)   # True  -- same value
+print(a is b)   # False -- different objects in memory
+
+c = a
+print(a is c)   # True  -- same object (same reference)
+```
+- `==` checks value equality
+- `is` checks identity (same memory address via `id()`)
+
+---
+
+### Q2. What is mutable vs immutable in Python?
+```python
+# Immutable -- cannot be changed after creation
+# int, float, str, tuple, bool, frozenset
+x = "hello"
+x[0] = "H"  # TypeError! strings are immutable
+
+# Mutable -- can be changed in place
+# list, dict, set, bytearray
+lst = [1, 2, 3]
+lst[0] = 99  # works fine
+```
+> Trick: Tuples are immutable but if they contain a mutable object (like a list), that inner object CAN be changed.
+```python
+t = (1, [2, 3])
+t[1].append(4)  # works! t is now (1, [2, 3, 4])
+```
+
+---
+
+### Q3. What is the difference between `deepcopy` and `copy`?
+```python
+import copy
+
+original = [[1, 2], [3, 4]]
+
+shallow = copy.copy(original)       # new outer list, same inner lists
+deep    = copy.deepcopy(original)   # completely new object at every level
+
+original[0][0] = 99
+print(shallow[0][0])  # 99  -- shallow copy shares inner objects
+print(deep[0][0])     # 1   -- deep copy is fully independent
+```
+
+---
+
+### Q4. What are *args and **kwargs?
+```python
+def func(*args, **kwargs):
+    print(args)    # tuple of positional args
+    print(kwargs)  # dict of keyword args
+
+func(1, 2, 3, name="Sujit", age=21)
+# args   = (1, 2, 3)
+# kwargs = {'name': 'Sujit', 'age': 21}
+```
+
+---
+
+### Q5. What is a Python decorator?
+```python
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("Before function")
+        result = func(*args, **kwargs)
+        print("After function")
+        return result
+    return wrapper
+
+@my_decorator
+def greet(name):
+    print(f"Hello {name}")
+
+greet("Sujit")
+# Before function
+# Hello Sujit
+# After function
+```
+> A decorator is a function that takes another function and extends its behavior without modifying it.
+
+---
+
+### Q6. What is a generator and how is it different from a list?
+```python
+# List -- stores all values in memory at once
+squares_list = [x**2 for x in range(1000000)]  # uses lots of RAM
+
+# Generator -- yields one value at a time, lazy evaluation
+def squares_gen(n):
+    for x in range(n):
+        yield x**2
+
+gen = squares_gen(1000000)  # uses almost no RAM
+print(next(gen))  # 0
+print(next(gen))  # 1
+
+# Generator expression (like list comprehension but with ())
+gen = (x**2 for x in range(10))
+```
+> Use generators when dealing with large data you don't need all at once.
+
+---
+
+### Q7. What is the difference between `list`, `tuple`, `set`, and `dict`?
+```
+list   -- ordered, mutable, allows duplicates          [1, 2, 2, 3]
+tuple  -- ordered, immutable, allows duplicates        (1, 2, 2, 3)
+set    -- unordered, mutable, NO duplicates            {1, 2, 3}
+dict   -- key-value pairs, ordered (Python 3.7+)       {"a": 1, "b": 2}
+```
+
+---
+
+### Q8. What is a lambda function?
+```python
+# Regular function
+def add(x, y):
+    return x + y
+
+# Lambda -- anonymous one-liner function
+add = lambda x, y: x + y
+print(add(3, 4))  # 7
+
+# Common use: sorting
+students = [("Sujit", 9.43), ("Raj", 8.5), ("Priya", 9.1)]
+students.sort(key=lambda s: s[1], reverse=True)
+```
+
+---
+
+### Q9. What is list comprehension and when should you NOT use it?
+```python
+# List comprehension -- concise, fast
+squares = [x**2 for x in range(10) if x % 2 == 0]
+
+# Dict comprehension
+word_lengths = {word: len(word) for word in ["hello", "world"]}
+
+# Set comprehension
+unique_squares = {x**2 for x in [-2, -1, 0, 1, 2]}
+
+# When NOT to use: complex logic, multiple nested loops, side effects
+# If it's hard to read in one line, use a regular for loop
+```
+
+---
+
+### Q10. What is the difference between `append`, `extend`, and `insert`?
+```python
+lst = [1, 2, 3]
+
+lst.append([4, 5])    # adds as single element: [1, 2, 3, [4, 5]]
+lst.extend([4, 5])    # adds each element:      [1, 2, 3, 4, 5]
+lst.insert(1, 99)     # inserts at index 1:     [1, 99, 2, 3]
+```
+
+---
+
+### Q11. What is the GIL (Global Interpreter Lock)?
+The GIL is a mutex in CPython that allows only ONE thread to execute Python bytecode at a time.
+
+```
+Threading in Python:
+  - I/O-bound tasks (file read, API calls): threading works fine
+  - CPU-bound tasks (heavy computation): use multiprocessing instead
+
+# For CPU-bound: use multiprocessing (bypasses GIL)
+from multiprocessing import Pool
+```
+> The GIL exists to protect Python's memory management (reference counting) from race conditions.
+
+---
+
+### Q12. What is the difference between `__str__` and `__repr__`?
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):
+        return f"{self.name}, age {self.age}"   # for end users (print)
+
+    def __repr__(self):
+        return f"Person('{self.name}', {self.age})"  # for developers (debug)
+
+p = Person("Sujit", 21)
+print(str(p))   # Sujit, age 21
+print(repr(p))  # Person('Sujit', 21)
+```
+
+---
+
+### Q13. What are Python's dunder (magic) methods?
+```python
+__init__    # constructor
+__str__     # string representation for users
+__repr__    # string representation for developers
+__len__     # len(obj)
+__getitem__ # obj[key]
+__setitem__ # obj[key] = value
+__contains__# item in obj
+__eq__      # obj1 == obj2
+__lt__      # obj1 < obj2
+__add__     # obj1 + obj2
+__call__    # obj()  -- makes object callable
+__enter__   # with statement start
+__exit__    # with statement end
+```
+
+---
+
+### Q14. What is `@staticmethod` vs `@classmethod` vs instance method?
+```python
+class MyClass:
+    class_var = "I am class variable"
+
+    def instance_method(self):
+        # has access to self (instance) and class
+        return self.class_var
+
+    @classmethod
+    def class_method(cls):
+        # has access to cls (class), not instance
+        # used for alternative constructors
+        return cls.class_var
+
+    @staticmethod
+    def static_method():
+        # no access to self or cls
+        # just a regular function inside the class namespace
+        return "I don't need self or cls"
+```
+
+---
+
+### Q15. What is the difference between `pass`, `continue`, and `break`?
+```python
+for i in range(5):
+    if i == 2:
+        pass      # does nothing, placeholder
+    if i == 3:
+        continue  # skip this iteration, go to next
+    if i == 4:
+        break     # exit the loop entirely
+    print(i)
+# Output: 0 1 2
+```
+
+---
+
+### Q16. What is exception handling in Python?
+```python
+try:
+    result = 10 / 0
+except ZeroDivisionError as e:
+    print(f"Error: {e}")
+except (TypeError, ValueError) as e:
+    print(f"Type or Value error: {e}")
+except Exception as e:
+    print(f"Any other error: {e}")
+else:
+    print("No error occurred")   # runs only if no exception
+finally:
+    print("Always runs")         # cleanup code here
+```
+
+---
+
+### Q17. What is the difference between `range` and `xrange`?
+- In Python 2: `range()` returns a list, `xrange()` returns an iterator (lazy)
+- In Python 3: `range()` IS lazy (like Python 2's xrange). `xrange` no longer exists.
+
+---
+
+### Q18. What is `zip`, `map`, and `filter`?
+```python
+# zip -- combine multiple iterables element by element
+names = ["Sujit", "Raj"]
+scores = [9.43, 8.5]
+for name, score in zip(names, scores):
+    print(name, score)
+
+# map -- apply function to every element
+squares = list(map(lambda x: x**2, [1, 2, 3, 4]))  # [1, 4, 9, 16]
+
+# filter -- keep elements where function returns True
+evens = list(filter(lambda x: x % 2 == 0, [1, 2, 3, 4, 5]))  # [2, 4]
+```
+
+---
+
+### Q19. What is a context manager and how does `with` work?
+```python
+# with statement calls __enter__ and __exit__ automatically
+with open("file.txt", "r") as f:
+    content = f.read()
+# file is automatically closed even if an exception occurs
+
+# Custom context manager
+class Timer:
+    def __enter__(self):
+        import time
+        self.start = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        print(f"Time: {time.time() - self.start:.2f}s")
+        return False  # don't suppress exceptions
+
+with Timer():
+    # some code
+    pass
+```
+
+---
+
+### Q20. What is the difference between `global` and `nonlocal`?
+```python
+x = 10
+
+def outer():
+    y = 20
+
+    def inner():
+        global x    # refers to module-level x
+        nonlocal y  # refers to enclosing function's y
+        x = 99
+        y = 99
+
+    inner()
+    print(y)  # 99 -- changed by nonlocal
+
+outer()
+print(x)  # 99 -- changed by global
+```
+
+---
+
+### Q21. What is the difference between `//`, `/`, and `%`?
+```python
+10 / 3    # 3.333...  -- true division (always float)
+10 // 3   # 3         -- floor division (integer result)
+10 % 3    # 1         -- modulo (remainder)
+-7 // 2   # -4        -- floor division rounds DOWN (not toward zero!)
+-7 % 2    # 1         -- Python modulo always non-negative
+```
+
+---
+
+### Q22. What is the difference between `None`, `False`, `0`, `""`, `[]`?
+```python
+# All are "falsy" -- evaluate to False in boolean context
+bool(None)  # False
+bool(False) # False
+bool(0)     # False
+bool("")    # False
+bool([])    # False
+bool({})    # False
+
+# But they are NOT equal to each other
+None == False  # False
+None == 0      # False
+0 == False     # True  (this one is True!)
+```
+
+---
+
+### Q23. What is the difference between `sort()` and `sorted()`?
+```python
+lst = [3, 1, 4, 1, 5]
+
+lst.sort()          # modifies list IN PLACE, returns None
+new = sorted(lst)   # returns NEW sorted list, original unchanged
+
+# Both support key and reverse
+sorted(lst, key=lambda x: -x)  # descending
+```
+
+---
+
+### Q24. What is a Python closure?
+```python
+def make_multiplier(n):
+    def multiplier(x):
+        return x * n   # n is "closed over" from outer scope
+    return multiplier
+
+double = make_multiplier(2)
+triple = make_multiplier(3)
+print(double(5))  # 10
+print(triple(5))  # 15
+```
+> A closure is a function that remembers variables from its enclosing scope even after that scope has finished.
+
+---
+
+### Q25. What is the difference between `__init__` and `__new__`?
+```python
+class MyClass:
+    def __new__(cls, *args, **kwargs):
+        # called FIRST -- creates and returns the new instance
+        print("__new__ called")
+        instance = super().__new__(cls)
+        return instance
+
+    def __init__(self, value):
+        # called SECOND -- initializes the instance
+        print("__init__ called")
+        self.value = value
+```
+> `__new__` creates the object. `__init__` initializes it. You rarely override `__new__` unless implementing singletons or metaclasses.
+
+---
+
+### Q26. What is the difference between `@property` and a regular attribute?
+```python
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def area(self):
+        return 3.14 * self._radius ** 2  # computed on access
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):
+        if value < 0:
+            raise ValueError("Radius cannot be negative")
+        self._radius = value
+
+c = Circle(5)
+print(c.area)    # 78.5 -- no () needed, looks like attribute
+c.radius = 10    # calls setter with validation
+```
+
+---
+
+### Q27. What is the difference between `isinstance` and `type`?
+```python
+class Animal: pass
+class Dog(Animal): pass
+
+d = Dog()
+print(type(d) == Dog)        # True
+print(type(d) == Animal)     # False -- type() is exact match only
+
+print(isinstance(d, Dog))    # True
+print(isinstance(d, Animal)) # True  -- isinstance checks inheritance chain
+```
+> Always prefer `isinstance` over `type()` for type checking.
+
+---
+
+### Q28. What is `enumerate` and when do you use it?
+```python
+fruits = ["apple", "banana", "cherry"]
+
+# Without enumerate (bad)
+for i in range(len(fruits)):
+    print(i, fruits[i])
+
+# With enumerate (good)
+for i, fruit in enumerate(fruits):
+    print(i, fruit)
+
+# Start from custom index
+for i, fruit in enumerate(fruits, start=1):
+    print(i, fruit)  # 1 apple, 2 banana, 3 cherry
+```
+
+---
+
+### Q29. What is the difference between `del`, `.remove()`, and `.pop()`?
+```python
+lst = [10, 20, 30, 40]
+
+del lst[1]       # delete by index -- lst is now [10, 30, 40]
+lst.remove(30)   # delete by value (first occurrence) -- [10, 40]
+val = lst.pop()  # remove and return last element -- val=40, lst=[10]
+val = lst.pop(0) # remove and return element at index 0
+```
+
+---
+
+### Q30. What is the difference between `input()` and `sys.stdin.readline()`?
+```python
+# input() -- strips trailing newline, returns str
+name = input("Enter name: ")
+
+# sys.stdin.readline() -- keeps trailing newline, faster for large input
+import sys
+name = sys.stdin.readline().strip()
+
+# For competitive programming / large input, sys.stdin is much faster
+```
+
+---
+
+### Q31. What are Python's built-in data types?
+```
+Numeric:   int, float, complex
+Sequence:  str, list, tuple, range
+Mapping:   dict
+Set:       set, frozenset
+Boolean:   bool
+Binary:    bytes, bytearray, memoryview
+None:      NoneType
+```
+
+---
+
+### Q32. What is the difference between `//` floor division and `int()` truncation?
+```python
+int(-7 / 2)   # -3  -- truncates toward zero
+-7 // 2       # -4  -- floor division rounds toward negative infinity
+```
+
+---
+
+### Q33. What is `*` unpacking?
+```python
+a, *b, c = [1, 2, 3, 4, 5]
+# a = 1, b = [2, 3, 4], c = 5
+
+# Merge lists
+list1 = [1, 2]
+list2 = [3, 4]
+merged = [*list1, *list2]  # [1, 2, 3, 4]
+
+# Merge dicts
+d1 = {"a": 1}
+d2 = {"b": 2}
+merged = {**d1, **d2}  # {"a": 1, "b": 2}
+```
+
+---
+
+### Q34. What is the difference between `any()` and `all()`?
+```python
+nums = [1, 2, 0, 4]
+
+any(nums)                    # True  -- at least one truthy value
+all(nums)                    # False -- not all are truthy (0 is falsy)
+
+any(x > 3 for x in nums)    # True  -- 4 > 3
+all(x > 0 for x in nums)    # False -- 0 is not > 0
+```
+
+---
+
+### Q35. What is the difference between `__slots__` and regular attributes?
+```python
+# Regular class -- each instance has a __dict__ (flexible but uses more memory)
+class Normal:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+# With __slots__ -- no __dict__, fixed attributes, less memory
+class Optimized:
+    __slots__ = ['x', 'y']
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+# Use __slots__ when creating millions of instances (e.g., data processing)
+```
+
+---
+
+### Q36. What is the difference between `try/except` and `try/except/else/finally`?
+```python
+try:
+    result = risky_operation()
+except ValueError:
+    handle_error()
+else:
+    # runs ONLY if no exception was raised in try block
+    use_result(result)
+finally:
+    # ALWAYS runs -- use for cleanup (close files, DB connections)
+    cleanup()
+```
+
+---
+
+### Q37. What is `collections` module and its key classes?
+```python
+from collections import Counter, defaultdict, OrderedDict, deque, namedtuple
+
+# Counter -- count occurrences
+c = Counter("banana")  # Counter({'a': 3, 'n': 2, 'b': 1})
+c.most_common(2)       # [('a', 3), ('n', 2)]
+
+# defaultdict -- dict with default value for missing keys
+dd = defaultdict(list)
+dd["key"].append(1)  # no KeyError even if "key" doesn't exist
+
+# deque -- double-ended queue, O(1) append/pop from both ends
+dq = deque([1, 2, 3])
+dq.appendleft(0)  # [0, 1, 2, 3]
+dq.popleft()      # 0
+
+# namedtuple -- tuple with named fields
+Point = namedtuple('Point', ['x', 'y'])
+p = Point(3, 4)
+print(p.x, p.y)  # 3 4
+```
+
+---
+
+### Q38. What is the difference between `==` and `is` for strings (string interning)?
+```python
+a = "hello"
+b = "hello"
+print(a == b)   # True
+print(a is b)   # True  -- Python interns short strings (same object!)
+
+a = "hello world"
+b = "hello world"
+print(a is b)   # May be False -- longer strings may not be interned
+```
+> Python automatically interns small integers (-5 to 256) and short strings. Don't rely on `is` for value comparison.
+
+---
+
+### Q39. What is the difference between `import module` and `from module import name`?
+```python
+import os
+os.path.join("a", "b")   # must use full path
+
+from os import path
+path.join("a", "b")       # shorter, but pollutes namespace
+
+from os.path import join
+join("a", "b")            # shortest, but can conflict with other names
+
+# Avoid: from module import *  -- imports everything, causes name conflicts
+```
+
+---
+
+### Q40. What is the difference between `@dataclass` and a regular class?
+```python
+from dataclasses import dataclass, field
+
+# Regular class -- lots of boilerplate
+class PersonOld:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    def __repr__(self):
+        return f"Person(name={self.name}, age={self.age})"
+    def __eq__(self, other):
+        return self.name == other.name and self.age == other.age
+
+# Dataclass -- auto-generates __init__, __repr__, __eq__
+@dataclass
+class Person:
+    name: str
+    age: int
+    scores: list = field(default_factory=list)  # mutable default
+
+p1 = Person("Sujit", 21)
+p2 = Person("Sujit", 21)
+print(p1 == p2)   # True -- __eq__ auto-generated
+print(p1)         # Person(name='Sujit', age=21)
+```
+
+---
+
+---
+
+## 22. Software Engineering Fundamentals - Interview Questions
+
+> These are the questions every interviewer asks regardless of role — frontend, backend, full-stack, AI engineer, or DevOps. Know these cold.
+
+---
+
+### Web & HTTP Fundamentals
+
+**Q1. What is HTTP and HTTPS?**
+- HTTP (HyperText Transfer Protocol) is the protocol used to transfer data between a client (browser) and a server.
+- HTTPS is HTTP with SSL/TLS encryption. Data is encrypted in transit so it can't be intercepted.
+- Port: HTTP = 80, HTTPS = 443
+
+---
+
+**Q2. What are HTTP methods? Explain GET, POST, PUT, PATCH, DELETE.**
+```
+GET     -- retrieve data, no body, idempotent, can be cached
+POST    -- create new resource, has body, NOT idempotent
+PUT     -- replace entire resource, idempotent
+PATCH   -- partially update resource, NOT always idempotent
+DELETE  -- delete resource, idempotent
+
+Idempotent = calling it multiple times gives same result
+GET /users/1       -- get user with id 1
+POST /users        -- create new user
+PUT /users/1       -- replace user 1 completely
+PATCH /users/1     -- update only specific fields of user 1
+DELETE /users/1    -- delete user 1
+```
+
+---
+
+**Q3. What are HTTP status codes?**
+```
+1xx -- Informational
+2xx -- Success
+  200 OK              -- request succeeded
+  201 Created         -- resource created (POST)
+  204 No Content      -- success, no body (DELETE)
+
+3xx -- Redirection
+  301 Moved Permanently
+  302 Found (temporary redirect)
+  304 Not Modified    -- use cached version
+
+4xx -- Client Error
+  400 Bad Request     -- invalid input
+  401 Unauthorized    -- not authenticated
+  403 Forbidden       -- authenticated but no permission
+  404 Not Found       -- resource doesn't exist
+  422 Unprocessable   -- validation error
+  429 Too Many Requests -- rate limited
+
+5xx -- Server Error
+  500 Internal Server Error -- server crashed
+  502 Bad Gateway           -- upstream server error
+  503 Service Unavailable   -- server overloaded/down
+```
+
+---
+
+**Q4. What is REST API?**
+REST (Representational State Transfer) is an architectural style for designing APIs.
+
+REST principles:
+- Stateless: each request contains all info needed, server stores no session
+- Client-Server: client and server are separate
+- Uniform Interface: consistent URL structure and HTTP methods
+- Resource-based: everything is a resource identified by URL
+- Cacheable: responses can be cached
+
+```
+RESTful URL examples:
+GET    /api/users          -- list all users
+GET    /api/users/1        -- get user 1
+POST   /api/users          -- create user
+PUT    /api/users/1        -- update user 1
+DELETE /api/users/1        -- delete user 1
+GET    /api/users/1/posts  -- get posts of user 1
+```
+
+---
+
+**Q5. What is the difference between REST and GraphQL?**
+```
+REST:
+  - Multiple endpoints (/users, /posts, /comments)
+  - Fixed response structure (may over-fetch or under-fetch)
+  - Simple, widely understood
+  - Good for simple CRUD APIs
+
+GraphQL:
+  - Single endpoint (/graphql)
+  - Client specifies exactly what data it needs
+  - No over-fetching or under-fetching
+  - Better for complex, nested data
+  - Steeper learning curve
+```
+
+---
+
+**Q6. What is an API? What is the difference between API and REST API?**
+- API (Application Programming Interface) is any interface that allows two systems to communicate.
+- REST API is a specific type of API that follows REST architectural principles over HTTP.
+- Other API types: SOAP, GraphQL, gRPC, WebSocket
+
+---
+
+**Q7. What is JSON and why is it used in APIs?**
+```json
+{
+  "name": "Sujit",
+  "age": 21,
+  "skills": ["Python", "AI", "FastAPI"],
+  "address": {
+    "city": "Pune",
+    "country": "India"
+  }
+}
+```
+- JSON (JavaScript Object Notation) is a lightweight, human-readable data format.
+- Used in APIs because it's language-agnostic, easy to parse, and supported everywhere.
+
+---
+
+**Q8. What is the difference between synchronous and asynchronous programming?**
+```python
+# Synchronous -- blocking, one task at a time
+def fetch_data():
+    data = requests.get(url)  # waits here until response
+    return data
+
+# Asynchronous -- non-blocking, can do other work while waiting
+async def fetch_data():
+    async with aiohttp.ClientSession() as session:
+        data = await session.get(url)  # yields control while waiting
+    return data
+```
+> Use async for I/O-bound tasks (API calls, DB queries). Use sync for CPU-bound tasks.
+
+---
+
+**Q9. What is a database? Difference between SQL and NoSQL?**
+```
+SQL (Relational):
+  - Structured tables with rows and columns
+  - Fixed schema
+  - ACID transactions
+  - Examples: PostgreSQL, MySQL, SQLite
+  - Use when: data is structured, relationships matter, consistency is critical
+
+NoSQL (Non-Relational):
+  - Flexible schema
+  - Types: Document (MongoDB), Key-Value (Redis), Column (Cassandra), Graph (Neo4j)
+  - Scales horizontally
+  - Use when: unstructured data, high write volume, flexible schema needed
+```
+
+---
+
+**Q10. What is CRUD?**
+```
+C -- Create  (INSERT / POST)
+R -- Read    (SELECT / GET)
+U -- Update  (UPDATE / PUT/PATCH)
+D -- Delete  (DELETE / DELETE)
+```
+
+---
+
+**Q11. What is an ORM?**
+ORM (Object-Relational Mapper) lets you interact with a database using Python objects instead of raw SQL.
+```python
+# Without ORM (raw SQL)
+cursor.execute("SELECT * FROM users WHERE id = 1")
+
+# With ORM (SQLAlchemy)
+user = session.query(User).filter(User.id == 1).first()
+```
+Examples: SQLAlchemy, Django ORM, Tortoise ORM
+
+---
+
+**Q12. What is indexing in databases?**
+An index is a data structure that speeds up data retrieval at the cost of extra storage and slower writes.
+```sql
+-- Without index: full table scan O(n)
+SELECT * FROM users WHERE email = 'sujit@email.com';
+
+-- With index on email: O(log n)
+CREATE INDEX idx_email ON users(email);
+```
+> Add indexes on columns you frequently filter, sort, or join on.
+
+---
+
+**Q13. What is a primary key vs foreign key?**
+```
+Primary Key -- uniquely identifies each row in a table. Cannot be NULL.
+Foreign Key -- references the primary key of another table. Creates a relationship.
+
+users table:  id (PK), name, email
+posts table:  id (PK), user_id (FK -> users.id), content
+```
+
+---
+
+**Q14. What is normalization in databases?**
+Normalization is the process of organizing a database to reduce data redundancy and improve integrity.
+```
+1NF -- each column has atomic values, no repeating groups
+2NF -- no partial dependencies (non-key columns depend on full PK)
+3NF -- no transitive dependencies (non-key columns don't depend on other non-key columns)
+```
+
+---
+
+**Q15. What is a transaction? What is ACID?**
+```
+A transaction is a group of operations that execute as a single unit.
+
+ACID properties:
+  Atomicity   -- all operations succeed or all fail (no partial updates)
+  Consistency -- database moves from one valid state to another
+  Isolation   -- concurrent transactions don't interfere with each other
+  Durability  -- committed transactions survive system failures
+```
+
+---
+
+**Q16. What is caching? What is Redis?**
+Caching stores frequently accessed data in fast memory to reduce database load and response time.
+```
+Redis -- in-memory key-value store, extremely fast (microsecond reads)
+Use cases:
+  - Cache API responses
+  - Session storage
+  - Rate limiting
+  - Pub/Sub messaging
+  - Leaderboards (sorted sets)
+
+Cache strategies:
+  Cache-aside:  app checks cache first, if miss, reads DB and stores in cache
+  Write-through: write to cache and DB simultaneously
+  Write-back:   write to cache only, sync to DB later (risk of data loss)
+```
+
+---
+
+**Q17. What is a message queue? What is Kafka/RabbitMQ?**
+A message queue decouples producers (who send messages) from consumers (who process them).
+```
+Use cases:
+  - Async task processing (send email after signup)
+  - Microservice communication
+  - Event streaming
+  - Load leveling (handle traffic spikes)
+
+Kafka   -- high-throughput, distributed, persistent log. Good for event streaming.
+RabbitMQ-- traditional message broker, supports complex routing. Good for task queues.
+```
+
+---
+
+**Q18. What is Docker?**
+Docker is a platform for packaging applications and their dependencies into containers.
+```
+Container -- isolated, lightweight runtime environment
+Image     -- blueprint for a container (like a class)
+Dockerfile-- instructions to build an image
+
+# Basic Dockerfile
+FROM python:3.11
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD ["python", "main.py"]
+
+docker build -t myapp .
+docker run -p 8000:8000 myapp
+```
+> Containers ensure "works on my machine" = "works everywhere"
+
+---
+
+**Q19. What is CI/CD?**
+```
+CI (Continuous Integration):
+  - Developers merge code frequently
+  - Automated tests run on every push
+  - Catches bugs early
+
+CD (Continuous Delivery/Deployment):
+  - Delivery: code is always in deployable state, manual trigger to deploy
+  - Deployment: automatically deploys to production after tests pass
+
+Tools: GitHub Actions, Jenkins, GitLab CI, CircleCI
+```
+
+---
+
+**Q20. What is Git? Difference between `git merge` and `git rebase`?**
+```
+git merge  -- combines branches, creates a merge commit, preserves history
+git rebase -- moves commits on top of another branch, linear history, cleaner log
+
+# merge (safe, preserves context)
+git checkout main
+git merge feature-branch
+
+# rebase (cleaner history, but rewrites commits)
+git checkout feature-branch
+git rebase main
+```
+> Use merge for shared branches. Use rebase for local cleanup before merging.
+
+---
+
+**Q21. What is microservices architecture vs monolithic?**
+```
+Monolithic:
+  - Single deployable unit
+  - Simple to develop and test initially
+  - Hard to scale individual parts
+  - One bug can crash everything
+
+Microservices:
+  - Each service is independent (own DB, own deployment)
+  - Scale individual services independently
+  - Technology flexibility per service
+  - More complex (network calls, distributed tracing, service discovery)
+```
+
+---
+
+**Q22. What is load balancing?**
+Load balancing distributes incoming traffic across multiple servers to prevent any single server from being overwhelmed.
+```
+Algorithms:
+  Round Robin     -- requests go to each server in turn
+  Least Connections -- send to server with fewest active connections
+  IP Hash         -- same client always goes to same server (sticky sessions)
+
+Tools: Nginx, AWS ALB, HAProxy
+```
+
+---
+
+**Q23. What is authentication vs authorization?**
+```
+Authentication -- who are you? (login, verify identity)
+  Methods: username/password, OAuth, JWT, API keys, biometrics
+
+Authorization  -- what can you do? (permissions, access control)
+  Methods: RBAC (Role-Based), ABAC (Attribute-Based), ACL
+
+Example:
+  Auth: You log in as Sujit (authentication)
+  Authz: Sujit can read posts but cannot delete other users' posts (authorization)
+```
+
+---
+
+**Q24. What is JWT (JSON Web Token)?**
+```
+JWT = Header.Payload.Signature (base64 encoded, dot-separated)
+
+Header:  {"alg": "HS256", "typ": "JWT"}
+Payload: {"user_id": 1, "role": "admin", "exp": 1234567890}
+Signature: HMAC(header + payload, secret_key)
+
+Flow:
+  1. User logs in with credentials
+  2. Server creates JWT and sends to client
+  3. Client stores JWT (localStorage or cookie)
+  4. Client sends JWT in Authorization header: "Bearer <token>"
+  5. Server verifies signature, extracts user info
+
+Pros: stateless, no DB lookup needed
+Cons: cannot invalidate before expiry (use refresh tokens + blacklist)
+```
+
+---
+
+**Q25. What is OAuth 2.0?**
+OAuth 2.0 is an authorization framework that lets users grant third-party apps access to their data without sharing passwords.
+```
+Flow (Authorization Code):
+  1. User clicks "Login with Google"
+  2. App redirects to Google with client_id and scope
+  3. User approves on Google
+  4. Google redirects back with authorization code
+  5. App exchanges code for access token (server-to-server)
+  6. App uses access token to call Google APIs
+
+Roles:
+  Resource Owner  -- the user
+  Client          -- your app
+  Authorization Server -- Google/GitHub/etc.
+  Resource Server -- API that holds user data
+```
+
+---
+
+**Q26. What is CORS?**
+CORS (Cross-Origin Resource Sharing) is a browser security mechanism that blocks requests from a different origin (domain/port/protocol) unless the server explicitly allows it.
+```python
+# FastAPI CORS setup
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://myfrontend.com"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+```
+
+---
+
+**Q27. What is the difference between cookies and localStorage?**
+```
+Cookies:
+  - Sent automatically with every HTTP request
+  - Can be HttpOnly (not accessible by JS -- safer)
+  - Can be Secure (HTTPS only)
+  - Has expiry
+  - Good for: session tokens, auth
+
+localStorage:
+  - Stored in browser, NOT sent with requests
+  - Accessible by JavaScript
+  - Persists until manually cleared
+  - Good for: user preferences, non-sensitive data
+
+sessionStorage:
+  - Same as localStorage but cleared when tab closes
+```
+
+---
+
+**Q28. What is SQL injection and how do you prevent it?**
+```python
+# VULNERABLE -- never do this
+query = f"SELECT * FROM users WHERE name = '{user_input}'"
+# If user_input = "'; DROP TABLE users; --"  --> disaster
+
+# SAFE -- use parameterized queries
+cursor.execute("SELECT * FROM users WHERE name = %s", (user_input,))
+
+# With SQLAlchemy ORM -- safe by default
+user = session.query(User).filter(User.name == user_input).first()
+```
+
+---
+
+**Q29. What is XSS (Cross-Site Scripting)?**
+XSS is an attack where malicious scripts are injected into web pages viewed by other users.
+```
+Stored XSS:  attacker saves script in DB, runs when other users view it
+Reflected XSS: script in URL, runs when user clicks malicious link
+
+Prevention:
+  - Escape/sanitize all user input before rendering
+  - Use Content Security Policy (CSP) headers
+  - Use HttpOnly cookies (JS can't steal them)
+  - Modern frameworks (React, Vue) escape by default
+```
+
+---
+
+**Q30. What is the difference between TCP and UDP?**
+```
+TCP (Transmission Control Protocol):
+  - Connection-oriented (3-way handshake)
+  - Reliable -- guarantees delivery and order
+  - Slower due to overhead
+  - Use: HTTP, HTTPS, email, file transfer
+
+UDP (User Datagram Protocol):
+  - Connectionless
+  - No guarantee of delivery or order
+  - Faster, lower latency
+  - Use: video streaming, gaming, DNS, VoIP
+```
+
+---
+
+**Q31. What is DNS?**
+DNS (Domain Name System) translates human-readable domain names to IP addresses.
+```
+You type: www.google.com
+DNS resolves: 142.250.195.46
+
+Steps:
+  1. Browser checks local cache
+  2. OS checks /etc/hosts
+  3. Query goes to recursive resolver (ISP)
+  4. Resolver queries root nameserver -> TLD (.com) -> authoritative nameserver
+  5. Returns IP address
+```
+
+---
+
+**Q32. What is a CDN?**
+CDN (Content Delivery Network) is a distributed network of servers that delivers content from the server closest to the user.
+```
+Benefits:
+  - Faster load times (geographically closer)
+  - Reduced load on origin server
+  - DDoS protection
+  - Caches static assets (images, CSS, JS)
+
+Examples: Cloudflare, AWS CloudFront, Akamai
+```
+
+---
+
+**Q33. What is WebSocket?**
+WebSocket is a protocol that provides full-duplex (two-way) communication over a single TCP connection.
+```
+HTTP:      client sends request --> server responds --> connection closes
+WebSocket: connection stays open, both sides can send messages anytime
+
+Use cases:
+  - Real-time chat
+  - Live notifications
+  - Collaborative editing (Google Docs)
+  - Live stock prices
+  - Multiplayer games
+```
+
+---
+
+**Q34. What is the difference between horizontal and vertical scaling?**
+```
+Vertical Scaling (Scale Up):
+  - Add more CPU/RAM to existing server
+  - Simple but has hardware limits
+  - Single point of failure
+
+Horizontal Scaling (Scale Out):
+  - Add more servers
+  - No theoretical limit
+  - Requires load balancer
+  - More complex (distributed state, session management)
+```
+
+---
+
+**Q35. What is a design pattern? Name a few common ones.**
+```
+Creational:
+  Singleton   -- only one instance of a class exists
+  Factory     -- create objects without specifying exact class
+  Builder     -- construct complex objects step by step
+
+Structural:
+  Decorator   -- add behavior to objects dynamically (Python @decorator)
+  Adapter     -- make incompatible interfaces work together
+  Proxy       -- control access to another object
+
+Behavioral:
+  Observer    -- notify multiple objects when state changes (event system)
+  Strategy    -- swap algorithms at runtime
+  Command     -- encapsulate requests as objects
+```
+
+---
+
+**Q36. What is SOLID principles?**
+```
+S -- Single Responsibility: a class should have only one reason to change
+O -- Open/Closed: open for extension, closed for modification
+L -- Liskov Substitution: subclasses should be replaceable for their parent
+I -- Interface Segregation: don't force classes to implement unused methods
+D -- Dependency Inversion: depend on abstractions, not concrete implementations
+```
+
+---
+
+**Q37. What is the difference between an abstract class and an interface?**
+```python
+from abc import ABC, abstractmethod
+
+# Abstract class -- can have both abstract and concrete methods
+class Animal(ABC):
+    @abstractmethod
+    def speak(self):  # must be implemented by subclass
+        pass
+
+    def breathe(self):  # concrete method, inherited as-is
+        return "inhale/exhale"
+
+class Dog(Animal):
+    def speak(self):
+        return "Woof"
+
+# Python has no formal "interface" keyword
+# Use ABC with all abstract methods to simulate an interface
+```
+
+---
+
+**Q38. What is recursion? What is the base case?**
+```python
+def factorial(n):
+    if n == 0:      # base case -- stops recursion
+        return 1
+    return n * factorial(n - 1)  # recursive case
+
+# Without base case = infinite recursion = RecursionError
+# Python default recursion limit: sys.getrecursionlimit() = 1000
+```
+
+---
+
+**Q39. What is Big O notation?**
+```
+O(1)       -- constant time (dict lookup, array index)
+O(log n)   -- logarithmic (binary search)
+O(n)       -- linear (loop through list)
+O(n log n) -- linearithmic (merge sort, quicksort average)
+O(n²)      -- quadratic (nested loops)
+O(2^n)     -- exponential (recursive fibonacci without memoization)
+
+Rule: always analyze worst case unless stated otherwise
+```
+
+---
+
+**Q40. What is the difference between a stack and a queue?**
+```
+Stack -- LIFO (Last In, First Out)
+  push() -- add to top
+  pop()  -- remove from top
+  Use: function call stack, undo/redo, DFS
+
+Queue -- FIFO (First In, First Out)
+  enqueue() -- add to back
+  dequeue() -- remove from front
+  Use: task scheduling, BFS, print queue
+
+Python:
+  Stack: use list with .append() and .pop()
+  Queue: use collections.deque with .append() and .popleft()
+```
+
+---
+
+**Q41. What is the difference between compiled and interpreted languages?**
+```
+Compiled (C, C++, Go, Rust):
+  - Source code -> machine code before execution
+  - Faster at runtime
+  - Platform-specific binary
+
+Interpreted (Python, JavaScript, Ruby):
+  - Source code executed line by line at runtime
+  - Slower but more flexible
+  - Platform-independent
+
+Python is technically compiled to bytecode (.pyc) then interpreted by CPython VM.
+```
+
+---
+
+**Q42. What is version control and why is it important?**
+Version control (Git) tracks changes to code over time.
+```
+Benefits:
+  - Revert to any previous state
+  - Collaborate without overwriting each other's work
+  - Branching for features/experiments
+  - Audit trail of who changed what and why
+
+Key commands:
+  git init, git clone, git add, git commit, git push, git pull
+  git branch, git checkout, git merge, git rebase
+  git log, git diff, git stash
+```
+
+---
+
+**Q43. What is the difference between `==` and `.equals()` in Java / `==` in Python?**
+```
+Java:
+  == checks reference equality (same object in memory)
+  .equals() checks value equality
+
+Python:
+  == checks value equality (calls __eq__)
+  is checks reference equality (same object)
+
+This is a common trick question -- know the language you're being interviewed for!
+```
+
+---
+
+**Q44. What is an environment variable and why use it?**
+```python
+import os
+
+# Store sensitive config outside code
+DB_URL = os.getenv("DATABASE_URL")
+API_KEY = os.getenv("OPENAI_API_KEY")
+
+# .env file (never commit to git!)
+# DATABASE_URL=postgresql://user:pass@localhost/mydb
+# OPENAI_API_KEY=sk-...
+
+# Load with python-dotenv
+from dotenv import load_dotenv
+load_dotenv()
+```
+> Never hardcode secrets in code. Use environment variables or secret managers.
+
+---
+
+**Q45. What is the difference between `PUT` and `PATCH`?**
+```
+PUT   -- replace the ENTIRE resource
+PATCH -- update ONLY the specified fields
+
+Example:
+User: {name: "Sujit", age: 21, city: "Pune"}
+
+PUT /users/1 with {name: "Sujit", age: 22}
+Result: {name: "Sujit", age: 22}  -- city is GONE
+
+PATCH /users/1 with {age: 22}
+Result: {name: "Sujit", age: 22, city: "Pune"}  -- only age changed
+```
+
+---
+
+**Q46. What is rate limiting?**
+Rate limiting restricts how many requests a client can make in a given time window.
+```
+Purpose:
+  - Prevent abuse and DDoS attacks
+  - Ensure fair usage
+  - Protect server resources
+
+Common strategies:
+  Fixed Window:  100 requests per minute, counter resets every minute
+  Sliding Window: 100 requests in any 60-second window
+  Token Bucket:  tokens refill at fixed rate, each request uses one token
+
+Response: 429 Too Many Requests
+Headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+```
+
+---
+
+**Q47. What is the difference between `async/await` and threads?**
+```
+Threads:
+  - OS-level concurrency
+  - True parallelism (on multi-core for CPU-bound)
+  - Higher memory overhead
+  - Race conditions possible
+
+async/await:
+  - Single-threaded concurrency (event loop)
+  - No true parallelism -- cooperative multitasking
+  - Very efficient for I/O-bound tasks
+  - No race conditions (single thread)
+  - Lower memory overhead
+
+Rule: async for I/O-bound (API calls, DB), threads/multiprocessing for CPU-bound
+```
+
+---
+
+**Q48. What is a webhook?**
+A webhook is a way for one system to notify another system when an event happens, via an HTTP POST request.
+```
+Traditional polling:
+  Your app: "Any new orders?" (every 5 seconds)
+  Server: "No... No... No... Yes!"
+
+Webhook (push model):
+  Server: "Hey, new order just came in!" (sends POST to your URL)
+
+Use cases:
+  - Payment notifications (Stripe, Razorpay)
+  - GitHub events (push, PR, issue)
+  - Slack notifications
+  - CI/CD triggers
+```
+
+---
+
+**Q49. What is the difference between monorepo and polyrepo?**
+```
+Monorepo -- all projects in one repository
+  Pros: easy code sharing, atomic commits across projects, single CI/CD
+  Cons: large repo size, complex tooling, slower CI
+  Examples: Google, Meta, Nx, Turborepo
+
+Polyrepo -- each project in its own repository
+  Pros: independent deployments, smaller repos, team autonomy
+  Cons: code sharing is harder, dependency management complex
+  Examples: most microservices setups
+```
+
+---
+
+**Q50. What is technical debt?**
+Technical debt is the implied cost of future rework caused by choosing a quick/easy solution now instead of a better approach that would take longer.
+```
+Types:
+  Deliberate:  "We know this is a shortcut, we'll fix it later"
+  Accidental:  "We didn't know better at the time"
+
+Signs of technical debt:
+  - Hard to add new features without breaking things
+  - No tests, so every change is risky
+  - Duplicated code everywhere
+  - No documentation
+  - Slow build/deploy times
+
+Managing it:
+  - Refactor regularly (don't let it accumulate)
+  - Write tests before refactoring
+  - Document decisions (Architecture Decision Records)
+  - Allocate 20% of sprint time to debt reduction
+```
+
+---
+
+> **Quick Revision Summary:**
+> Python basics traps: mutable defaults, `is` vs `==`, shallow vs deep copy, GIL, generators, closures, decorators.
+> Software engineering must-knows: HTTP methods + status codes, REST principles, SQL vs NoSQL, ACID, JWT, OAuth, CORS, Docker, CI/CD, SOLID, Big O, async vs threads.
+> These questions come up in every interview regardless of role. Know them cold.
+
+
+---
+
+## 23. DSA Patterns - Interview Must-Know
+
+> These are the patterns that cover 80% of coding interview questions. Know the pattern, solve any variation.
+
+---
+
+### Pattern 1: Two Pointers
+Use when: sorted array, find pairs, remove duplicates, palindrome check.
+```python
+# Find two numbers that sum to target
+def two_sum_sorted(nums, target):
+    left, right = 0, len(nums) - 1
+    while left < right:
+        s = nums[left] + nums[right]
+        if s == target:
+            return [left, right]
+        elif s < target:
+            left += 1
+        else:
+            right -= 1
+    return []
+
+# Check if string is palindrome
+def is_palindrome(s):
+    left, right = 0, len(s) - 1
+    while left < right:
+        if s[left] != s[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+```
+
+---
+
+### Pattern 2: Sliding Window
+Use when: subarray/substring of fixed or variable size, max/min sum, longest substring.
+```python
+# Max sum subarray of size k
+def max_sum_subarray(nums, k):
+    window_sum = sum(nums[:k])
+    max_sum = window_sum
+    for i in range(k, len(nums)):
+        window_sum += nums[i] - nums[i - k]
+        max_sum = max(max_sum, window_sum)
+    return max_sum
+
+# Longest substring without repeating characters
+def length_of_longest_substring(s):
+    char_set = set()
+    left = max_len = 0
+    for right in range(len(s)):
+        while s[right] in char_set:
+            char_set.remove(s[left])
+            left += 1
+        char_set.add(s[right])
+        max_len = max(max_len, right - left + 1)
+    return max_len
+```
+
+---
+
+### Pattern 3: Fast & Slow Pointers
+Use when: linked list cycle detection, find middle of linked list.
+```python
+class ListNode:
+    def __init__(self, val=0, next=None):
+        self.val = val
+        self.next = next
+
+# Detect cycle in linked list
+def has_cycle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow == fast:
+            return True
+    return False
+
+# Find middle of linked list
+def find_middle(head):
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+    return slow  # slow is at middle
+```
+
+---
+
+### Pattern 4: Binary Search
+Use when: sorted array, search for value, find boundary condition.
+```python
+# Classic binary search
+def binary_search(nums, target):
+    left, right = 0, len(nums) - 1
+    while left <= right:
+        mid = left + (right - left) // 2  # avoids overflow
+        if nums[mid] == target:
+            return mid
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+
+# Find first position of target (leftmost)
+def search_first(nums, target):
+    left, right, result = 0, len(nums) - 1, -1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            result = mid
+            right = mid - 1  # keep searching left
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return result
+```
+
+---
+
+### Pattern 5: BFS (Breadth-First Search)
+Use when: shortest path, level-order traversal, minimum steps.
+```python
+from collections import deque
+
+# BFS on a graph
+def bfs(graph, start):
+    visited = set([start])
+    queue = deque([start])
+    result = []
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return result
+
+# Shortest path in unweighted graph
+def shortest_path(graph, start, end):
+    queue = deque([(start, [start])])
+    visited = set([start])
+    while queue:
+        node, path = queue.popleft()
+        if node == end:
+            return path
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append((neighbor, path + [neighbor]))
+    return []
+```
+
+---
+
+### Pattern 6: DFS (Depth-First Search)
+Use when: explore all paths, tree traversal, connected components, backtracking.
+```python
+# DFS on a graph (iterative)
+def dfs(graph, start):
+    visited = set()
+    stack = [start]
+    result = []
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            result.append(node)
+            stack.extend(graph[node])
+    return result
+
+# DFS recursive
+def dfs_recursive(graph, node, visited=None):
+    if visited is None:
+        visited = set()
+    visited.add(node)
+    for neighbor in graph[node]:
+        if neighbor not in visited:
+            dfs_recursive(graph, neighbor, visited)
+    return visited
+```
+
+---
+
+### Pattern 7: Dynamic Programming
+Use when: overlapping subproblems, optimal substructure, count ways, min/max cost.
+```python
+# Fibonacci with memoization (top-down)
+from functools import lru_cache
+
+@lru_cache(maxsize=None)
+def fib(n):
+    if n <= 1:
+        return n
+    return fib(n-1) + fib(n-2)
+
+# Fibonacci with tabulation (bottom-up)
+def fib_dp(n):
+    if n <= 1:
+        return n
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    for i in range(2, n + 1):
+        dp[i] = dp[i-1] + dp[i-2]
+    return dp[n]
+
+# 0/1 Knapsack
+def knapsack(weights, values, capacity):
+    n = len(weights)
+    dp = [[0] * (capacity + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            dp[i][w] = dp[i-1][w]  # don't take item i
+            if weights[i-1] <= w:
+                dp[i][w] = max(dp[i][w], dp[i-1][w - weights[i-1]] + values[i-1])
+    return dp[n][capacity]
+
+# Longest Common Subsequence
+def lcs(s1, s2):
+    m, n = len(s1), len(s2)
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
+            if s1[i-1] == s2[j-1]:
+                dp[i][j] = dp[i-1][j-1] + 1
+            else:
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+    return dp[m][n]
+```
+
+---
+
+### Pattern 8: Stack-based Problems
+Use when: matching brackets, next greater element, monotonic stack.
+```python
+# Valid parentheses
+def is_valid(s):
+    stack = []
+    mapping = {')': '(', '}': '{', ']': '['}
+    for char in s:
+        if char in mapping:
+            top = stack.pop() if stack else '#'
+            if mapping[char] != top:
+                return False
+        else:
+            stack.append(char)
+    return not stack
+
+# Next greater element
+def next_greater(nums):
+    result = [-1] * len(nums)
+    stack = []  # stores indices
+    for i in range(len(nums)):
+        while stack and nums[i] > nums[stack[-1]]:
+            idx = stack.pop()
+            result[idx] = nums[i]
+        stack.append(i)
+    return result
+```
+
+---
+
+### Pattern 9: Heap / Priority Queue
+Use when: k largest/smallest elements, merge k sorted lists, top-k frequent.
+```python
+import heapq
+
+# K largest elements
+def k_largest(nums, k):
+    return heapq.nlargest(k, nums)
+
+# K smallest elements
+def k_smallest(nums, k):
+    return heapq.nsmallest(k, nums)
+
+# Top K frequent elements
+from collections import Counter
+def top_k_frequent(nums, k):
+    count = Counter(nums)
+    return heapq.nlargest(k, count.keys(), key=count.get)
+
+# Min heap operations
+heap = []
+heapq.heappush(heap, 3)
+heapq.heappush(heap, 1)
+heapq.heappush(heap, 2)
+print(heapq.heappop(heap))  # 1 (smallest)
+
+# Max heap: negate values
+max_heap = []
+heapq.heappush(max_heap, -5)
+heapq.heappush(max_heap, -3)
+print(-heapq.heappop(max_heap))  # 5 (largest)
+```
+
+---
+
+### Pattern 10: Hash Map Tricks
+Use when: frequency count, two-sum, group anagrams, first unique character.
+```python
+# Two Sum (unsorted)
+def two_sum(nums, target):
+    seen = {}
+    for i, num in enumerate(nums):
+        complement = target - num
+        if complement in seen:
+            return [seen[complement], i]
+        seen[num] = i
+    return []
+
+# Group anagrams
+def group_anagrams(strs):
+    groups = {}
+    for s in strs:
+        key = tuple(sorted(s))
+        groups.setdefault(key, []).append(s)
+    return list(groups.values())
+
+# First non-repeating character
+def first_unique(s):
+    count = Counter(s)
+    for i, c in enumerate(s):
+        if count[c] == 1:
+            return i
+    return -1
+```
+
+---
+
+### Time Complexity Cheat Sheet
+```
+Operation              | List    | Dict/Set | Sorted List | Heap
+-----------------------|---------|----------|-------------|------
+Access by index        | O(1)    | -        | O(1)        | -
+Search                 | O(n)    | O(1)     | O(log n)    | O(n)
+Insert at end          | O(1)    | O(1)     | O(log n)    | O(log n)
+Insert at beginning    | O(n)    | -        | O(n)        | -
+Delete by value        | O(n)    | O(1)     | O(log n)    | O(n)
+Min/Max                | O(n)    | -        | O(1)        | O(1)
+
+Sorting: O(n log n) -- Python's Timsort
+Binary Search: O(log n) -- only on sorted data
+```
+
+---
+
+---
+
+## 24. System Design Basics - Interview Questions
+
+> System design questions test whether you can think at scale. Even for junior roles, interviewers want to see structured thinking.
+
+---
+
+### How to Approach Any System Design Question
+```
+1. Clarify requirements (2 min)
+   - Functional: what does it do?
+   - Non-functional: scale, latency, availability?
+
+2. Estimate scale (1 min)
+   - Users: 1M DAU?
+   - Requests: 1000 req/sec?
+   - Storage: 1TB/year?
+
+3. High-level design (5 min)
+   - Draw boxes: Client > Load Balancer > API Servers > DB > Cache
+
+4. Deep dive (10 min)
+   - Database schema
+   - API design
+   - Bottlenecks and how to solve them
+
+5. Wrap up
+   - Monitoring, failure handling, future scaling
+```
+
+---
+
+### Design a URL Shortener (like bit.ly)
+
+**Requirements:**
+- Given a long URL, return a short URL
+- Redirect short URL to original
+- 100M URLs created/day, 10B redirects/day
+
+**Design:**
+```
+Client --> Load Balancer --> API Servers --> Cache (Redis) --> DB (PostgreSQL)
+
+Schema:
+  urls table: id (BIGINT), short_code (VARCHAR 7), long_url (TEXT), created_at
+
+Short code generation:
+  Option 1: Base62 encode auto-increment ID (a-z, A-Z, 0-9 = 62 chars)
+  Option 2: MD5 hash of long URL, take first 7 chars
+
+API:
+  POST /shorten  { "url": "https://very-long-url.com" } --> { "short": "abc1234" }
+  GET  /{code}   --> 301 redirect to long URL
+
+Caching:
+  Cache short_code -> long_url in Redis (TTL 24h)
+  Cache hit rate ~80% for popular URLs
+
+DB:
+  Index on short_code for O(log n) lookup
+  Read replicas for 10B redirects/day
+```
+
+---
+
+### Design a Chat Application (like WhatsApp)
+
+**Key components:**
+```
+Client --> WebSocket Server --> Message Queue (Kafka) --> DB (Cassandra)
+                                                      --> Push Notification Service
+
+Why WebSocket?
+  HTTP is request-response. Chat needs real-time bidirectional communication.
+  WebSocket keeps connection open, server can push messages anytime.
+
+Why Cassandra?
+  Write-heavy (millions of messages/sec)
+  Scales horizontally
+  Time-series data (messages ordered by timestamp)
+
+Message delivery:
+  Online user:  deliver via WebSocket directly
+  Offline user: store in DB, send push notification (FCM/APNs)
+
+Schema:
+  messages: message_id, chat_id, sender_id, content, timestamp, status
+  Index on (chat_id, timestamp) for fetching chat history
+```
+
+---
+
+### Design a Rate Limiter
+
+**Algorithms:**
+```
+Token Bucket:
+  - Bucket holds max N tokens
+  - Tokens refill at fixed rate (e.g., 10/sec)
+  - Each request consumes 1 token
+  - If bucket empty: reject request
+  - Allows bursts up to bucket size
+
+Sliding Window Counter:
+  - Track request count in rolling time window
+  - More accurate than fixed window
+  - Slightly more memory
+
+Implementation with Redis:
+  key = f"rate_limit:{user_id}"
+  count = redis.incr(key)
+  if count == 1:
+      redis.expire(key, 60)  # 60 second window
+  if count > 100:
+      return 429 Too Many Requests
+```
+
+---
+
+### Design a Notification System
+
+```
+Producers (events) --> Message Queue (Kafka) --> Notification Workers --> Channels
+
+Channels:
+  Push notification: FCM (Android), APNs (iOS)
+  Email: SendGrid, AWS SES
+  SMS: Twilio
+  In-app: WebSocket or polling
+
+Why Kafka?
+  Decouples event producers from notification senders
+  Handles traffic spikes (buffer)
+  Retry failed notifications
+  Multiple consumers (email + push + SMS all consume same event)
+
+Schema:
+  notifications: id, user_id, type, title, body, status, created_at
+  user_preferences: user_id, email_enabled, push_enabled, sms_enabled
+```
+
+---
+
+### Key System Design Concepts
+
+**CAP Theorem:**
+```
+In a distributed system, you can only guarantee 2 of 3:
+  C -- Consistency: all nodes see same data at same time
+  A -- Availability: every request gets a response
+  P -- Partition Tolerance: system works despite network failures
+
+Network partitions always happen in distributed systems, so you choose:
+  CP: consistent + partition tolerant (MongoDB, HBase) -- may reject requests
+  AP: available + partition tolerant (Cassandra, DynamoDB) -- may return stale data
+```
+
+**Database Sharding:**
+```
+Sharding = splitting data across multiple DB servers (horizontal partitioning)
+
+Strategies:
+  Range-based:  users 1-1M on shard 1, 1M-2M on shard 2
+  Hash-based:   shard = hash(user_id) % num_shards (even distribution)
+  Directory:    lookup table maps key to shard
+
+Problems:
+  Hot spots: one shard gets all traffic
+  Cross-shard queries: expensive joins
+  Rebalancing: adding shards requires data migration
+```
+
+**Consistent Hashing:**
+```
+Used in distributed caches and load balancers.
+Servers and keys are placed on a virtual ring.
+Each key goes to the nearest server clockwise.
+Adding/removing a server only affects neighboring keys (not all keys).
+Used by: Amazon DynamoDB, Apache Cassandra, Memcached
+```
+
+**Read Replicas:**
+```
+Primary DB handles writes.
+Read replicas handle reads (can have many).
+Replication lag: replicas may be slightly behind primary.
+Use for: read-heavy workloads, analytics, reporting.
+```
+
+**Event-Driven Architecture:**
+```
+Services communicate via events (messages) instead of direct API calls.
+Producer emits event --> Message Queue --> Consumer processes it
+
+Benefits:
+  Loose coupling -- services don't know about each other
+  Scalability -- consumers can scale independently
+  Resilience -- queue buffers traffic spikes
+
+Tools: Kafka, RabbitMQ, AWS SQS/SNS
+```
+
+---
+
+---
+
+## 25. Python OOP - Deep Dive
+
+> OOP questions come up in almost every Python interview. Know these patterns cold.
+
+---
+
+### Inheritance
+```python
+class Animal:
+    def __init__(self, name):
+        self.name = name
+
+    def speak(self):
+        raise NotImplementedError("Subclass must implement speak()")
+
+    def __str__(self):
+        return f"{self.__class__.__name__}({self.name})"
+
+class Dog(Animal):
+    def speak(self):
+        return "Woof!"
+
+class Cat(Animal):
+    def speak(self):
+        return "Meow!"
+
+# Polymorphism -- same interface, different behavior
+animals = [Dog("Rex"), Cat("Whiskers")]
+for animal in animals:
+    print(f"{animal}: {animal.speak()}")
+```
+
+---
+
+### Multiple Inheritance & MRO
+```python
+class A:
+    def hello(self):
+        return "A"
+
+class B(A):
+    def hello(self):
+        return "B"
+
+class C(A):
+    def hello(self):
+        return "C"
+
+class D(B, C):
+    pass
+
+d = D()
+print(d.hello())       # "B" -- follows MRO
+print(D.__mro__)       # D -> B -> C -> A -> object
+# MRO = Method Resolution Order, determined by C3 linearization
+# Python searches left to right, depth first, but respects the order
+```
+
+---
+
+### Composition vs Inheritance
+```python
+# Inheritance: "is-a" relationship
+class ElectricCar(Car):  # ElectricCar IS-A Car
+    pass
+
+# Composition: "has-a" relationship (preferred in most cases)
+class Engine:
+    def start(self):
+        return "Engine started"
+
+class Car:
+    def __init__(self):
+        self.engine = Engine()  # Car HAS-A Engine
+
+    def start(self):
+        return self.engine.start()
+
+# Prefer composition over inheritance:
+# - More flexible (swap components at runtime)
+# - Avoids deep inheritance chains
+# - Easier to test (mock components)
+```
+
+---
+
+### Singleton Pattern
+```python
+class Singleton:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+s1 = Singleton()
+s2 = Singleton()
+print(s1 is s2)  # True -- same object
+
+# Thread-safe singleton
+import threading
+
+class ThreadSafeSingleton:
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls):
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super().__new__(cls)
+        return cls._instance
+```
+
+---
+
+### Abstract Base Classes
+```python
+from abc import ABC, abstractmethod
+
+class Shape(ABC):
+    @abstractmethod
+    def area(self) -> float:
+        pass
+
+    @abstractmethod
+    def perimeter(self) -> float:
+        pass
+
+    def describe(self):  # concrete method
+        return f"Area: {self.area():.2f}, Perimeter: {self.perimeter():.2f}"
+
+class Rectangle(Shape):
+    def __init__(self, w, h):
+        self.w = w
+        self.h = h
+
+    def area(self):
+        return self.w * self.h
+
+    def perimeter(self):
+        return 2 * (self.w + self.h)
+
+# Shape()  # TypeError: Can't instantiate abstract class
+r = Rectangle(4, 5)
+print(r.describe())  # Area: 20.00, Perimeter: 18.00
+```
+
+---
+
+### Dunder Methods - Practical Examples
+```python
+class Vector:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __add__(self, other):       # v1 + v2
+        return Vector(self.x + other.x, self.y + other.y)
+
+    def __mul__(self, scalar):      # v * 3
+        return Vector(self.x * scalar, self.y * scalar)
+
+    def __len__(self):              # len(v)
+        return 2
+
+    def __getitem__(self, idx):     # v[0], v[1]
+        return (self.x, self.y)[idx]
+
+    def __iter__(self):             # for val in v
+        yield self.x
+        yield self.y
+
+    def __eq__(self, other):        # v1 == v2
+        return self.x == other.x and self.y == other.y
+
+    def __repr__(self):
+        return f"Vector({self.x}, {self.y})"
+
+v1 = Vector(1, 2)
+v2 = Vector(3, 4)
+print(v1 + v2)    # Vector(4, 6)
+print(v1 * 3)     # Vector(3, 6)
+print(list(v1))   # [1, 2]
+```
+
+---
+
+### Metaclasses (Advanced)
+```python
+# A metaclass is the class of a class
+# type is the default metaclass of all classes
+
+class Meta(type):
+    def __new__(mcs, name, bases, namespace):
+        # Auto-add a class_name attribute to every class using this metaclass
+        namespace['class_name'] = name
+        return super().__new__(mcs, name, bases, namespace)
+
+class MyClass(metaclass=Meta):
+    pass
+
+print(MyClass.class_name)  # "MyClass"
+
+# Common use: enforce that subclasses implement certain methods
+class InterfaceMeta(type):
+    def __new__(mcs, name, bases, namespace):
+        required = ['process', 'validate']
+        for method in required:
+            if name != 'Interface' and method not in namespace:
+                raise TypeError(f"Class {name} must implement {method}()")
+        return super().__new__(mcs, name, bases, namespace)
+```
+
+---
+
+## 26. Python Concurrency - Interview Questions
+
+---
+
+### Threading vs Multiprocessing vs AsyncIO
+```
+Threading:
+  - Multiple threads in ONE process
+  - Shared memory (careful with race conditions)
+  - GIL limits true parallelism for CPU-bound
+  - Good for: I/O-bound tasks (file, network)
+
+Multiprocessing:
+  - Multiple processes, each with own memory
+  - True parallelism (bypasses GIL)
+  - Higher memory overhead
+  - Good for: CPU-bound tasks (image processing, ML inference)
+
+AsyncIO:
+  - Single thread, event loop
+  - Cooperative multitasking (tasks yield control)
+  - No race conditions
+  - Good for: many concurrent I/O operations (API calls, DB queries)
+```
+
+```python
+# Threading example
+import threading
+
+def download(url):
+    # simulate I/O
+    import time; time.sleep(1)
+    print(f"Downloaded {url}")
+
+threads = [threading.Thread(target=download, args=(f"url_{i}",)) for i in range(5)]
+for t in threads: t.start()
+for t in threads: t.join()
+
+# Multiprocessing example
+from multiprocessing import Pool
+
+def cpu_heavy(n):
+    return sum(i**2 for i in range(n))
+
+with Pool(processes=4) as pool:
+    results = pool.map(cpu_heavy, [1000000, 2000000, 3000000, 4000000])
+
+# AsyncIO example
+import asyncio, aiohttp
+
+async def fetch(session, url):
+    async with session.get(url) as response:
+        return await response.text()
+
+async def main():
+    async with aiohttp.ClientSession() as session:
+        tasks = [fetch(session, f"https://api.example.com/{i}") for i in range(10)]
+        results = await asyncio.gather(*tasks)
+    return results
+```
+
+---
+
+### Race Conditions and Locks
+```python
+import threading
+
+counter = 0
+lock = threading.Lock()
+
+def increment():
+    global counter
+    for _ in range(100000):
+        with lock:  # only one thread at a time
+            counter += 1
+
+threads = [threading.Thread(target=increment) for _ in range(5)]
+for t in threads: t.start()
+for t in threads: t.join()
+print(counter)  # 500000 (correct with lock, random without)
+```
+
+---
+
+## 27. Common Python Interview Traps
+
+> These are the "gotcha" questions interviewers use to catch people off guard.
+
+---
+
+### Trap 1: Mutable Default Arguments
+```python
+# WRONG -- list is created ONCE and shared across all calls
+def add_item(item, lst=[]):
+    lst.append(item)
+    return lst
+
+print(add_item(1))  # [1]
+print(add_item(2))  # [1, 2]  <-- unexpected!
+
+# CORRECT -- use None as default, create new list inside
+def add_item(item, lst=None):
+    if lst is None:
+        lst = []
+    lst.append(item)
+    return lst
+```
+
+---
+
+### Trap 2: Late Binding in Closures
+```python
+# WRONG -- all lambdas capture the same variable i
+funcs = [lambda: i for i in range(5)]
+print([f() for f in funcs])  # [4, 4, 4, 4, 4]  <-- all 4!
+
+# CORRECT -- capture current value with default argument
+funcs = [lambda i=i: i for i in range(5)]
+print([f() for f in funcs])  # [0, 1, 2, 3, 4]
+```
+
+---
+
+### Trap 3: Chained Comparisons
+```python
+# Python supports chained comparisons (unlike most languages)
+x = 5
+print(1 < x < 10)   # True  -- works as expected
+print(1 < x > 3)    # True  -- also works
+
+# This is NOT the same as:
+print((1 < x) and (x < 10))  # same result but different syntax
+```
+
+---
+
+### Trap 4: Integer Caching
+```python
+# Python caches small integers (-5 to 256)
+a = 256
+b = 256
+print(a is b)  # True  -- same cached object
+
+a = 257
+b = 257
+print(a is b)  # False -- different objects (outside cache range)
+# This is why you should NEVER use `is` for integer comparison
+```
+
+---
+
+### Trap 5: String Concatenation in Loop
+```python
+# SLOW -- creates new string object every iteration O(n²)
+result = ""
+for word in words:
+    result += word
+
+# FAST -- join at end O(n)
+result = "".join(words)
+```
+
+---
+
+### Trap 6: `is not None` vs `!= None`
+```python
+# Correct way to check for None
+if x is None:      # checks identity (correct)
+    pass
+
+if x is not None:  # correct
+    pass
+
+# Avoid:
+if x == None:      # calls __eq__, can be overridden by custom class
+    pass
+```
+
+---
+
+### Trap 7: Modifying a List While Iterating
+```python
+# WRONG -- skips elements
+lst = [1, 2, 3, 4, 5]
+for item in lst:
+    if item % 2 == 0:
+        lst.remove(item)  # modifies list during iteration!
+print(lst)  # [1, 3, 5] -- looks right but 4 was skipped
+
+# CORRECT -- iterate over a copy
+for item in lst[:]:
+    if item % 2 == 0:
+        lst.remove(item)
+
+# OR use list comprehension
+lst = [item for item in lst if item % 2 != 0]
+```
+
+---
+
+### Trap 8: `__eq__` without `__hash__`
+```python
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+    # If you define __eq__, Python sets __hash__ = None
+    # This makes Point unhashable (can't use in set or as dict key)
+
+p = Point(1, 2)
+s = {p}  # TypeError: unhashable type: 'Point'
+
+# Fix: also define __hash__
+def __hash__(self):
+    return hash((self.x, self.y))
+```
+
+---
+
+## 28. Git Commands - Interview & Daily Use
+
+```bash
+# Setup
+git config --global user.name "Sujit"
+git config --global user.email "sujit@email.com"
+
+# Basic workflow
+git init                    # initialize repo
+git clone <url>             # clone remote repo
+git status                  # see changed files
+git add file.py             # stage specific file
+git add .                   # stage all changes
+git commit -m "message"     # commit staged changes
+git push origin main        # push to remote
+git pull origin main        # fetch + merge from remote
+
+# Branching
+git branch feature-x        # create branch
+git checkout feature-x      # switch to branch
+git checkout -b feature-x   # create + switch in one step
+git branch -d feature-x     # delete branch (safe)
+git branch -D feature-x     # force delete branch
+
+# Merging
+git merge feature-x         # merge feature-x into current branch
+git rebase main             # rebase current branch onto main
+
+# Undoing
+git restore file.py         # discard unstaged changes
+git restore --staged file.py# unstage a file
+git reset HEAD~1            # undo last commit, keep changes staged
+git reset --hard HEAD~1     # undo last commit, DISCARD changes (destructive)
+git revert <commit-hash>    # create new commit that undoes a commit (safe)
+
+# Stashing
+git stash                   # save uncommitted changes temporarily
+git stash pop               # restore stashed changes
+git stash list              # see all stashes
+
+# Inspection
+git log --oneline           # compact commit history
+git log --graph --oneline   # visual branch graph
+git diff                    # unstaged changes
+git diff --staged           # staged changes
+git blame file.py           # who changed each line
+
+# Remote
+git remote -v               # list remotes
+git fetch origin            # download changes without merging
+git remote add origin <url> # add remote
+
+# Tags
+git tag v1.0.0              # create tag
+git push origin v1.0.0      # push tag
+```
+
+---
+
+## 29. Linux / Terminal Commands - Interview Basics
+
+> Many interviewers ask basic Linux commands, especially for backend/DevOps roles.
+
+```bash
+# Navigation
+pwd                    # print working directory
+ls -la                 # list files with details
+cd /path/to/dir        # change directory
+cd ..                  # go up one level
+cd ~                   # go to home directory
+
+# File operations
+touch file.txt         # create empty file
+mkdir -p dir/subdir    # create directory (and parents)
+cp source dest         # copy file
+mv source dest         # move/rename file
+rm file.txt            # delete file
+rm -rf dir/            # delete directory recursively (careful!)
+cat file.txt           # print file content
+head -n 20 file.txt    # first 20 lines
+tail -n 20 file.txt    # last 20 lines
+tail -f log.txt        # follow file in real time (logs)
+
+# Search
+grep "pattern" file.txt        # search in file
+grep -r "pattern" ./           # recursive search
+grep -i "pattern" file.txt     # case insensitive
+find . -name "*.py"            # find files by name
+find . -type f -size +1M       # find files larger than 1MB
+
+# Process management
+ps aux                 # list all processes
+kill -9 <PID>          # force kill process
+top                    # real-time process monitor
+htop                   # better process monitor
+
+# Permissions
+chmod 755 script.sh    # rwxr-xr-x
+chmod +x script.sh     # make executable
+chown user:group file  # change owner
+
+# Networking
+curl https://api.example.com/data          # HTTP GET
+curl -X POST -d '{"key":"val"}' url        # HTTP POST
+wget https://example.com/file.zip          # download file
+ping google.com                            # test connectivity
+netstat -tulpn                             # list open ports
+ss -tulpn                                  # modern netstat
+
+# Environment
+export KEY=value       # set env variable
+echo $KEY              # print env variable
+env                    # list all env variables
+source .env            # load .env file into shell
+
+# Disk & Memory
+df -h                  # disk usage
+du -sh ./              # directory size
+free -h                # memory usage
+
+# Pipes and redirection
+cat file.txt | grep "error"        # pipe output to grep
+command > output.txt               # redirect stdout to file
+command >> output.txt              # append to file
+command 2>&1 | tee log.txt         # redirect stderr + stdout, also print
+```
+
+---
+
+> **Final Note:** These sections (23-29) cover DSA patterns, system design, OOP deep dive, concurrency, Python traps, Git, and Linux — the complete picture for any software engineering interview. Combined with the AI/ML sections earlier, this covers everything from fresher to experienced roles.
