@@ -4220,6 +4220,576 @@ GenKit              --> Google's framework for AI app development
 ---
 
 ### Q1. What is the difference between `is` and `==`?
+
+`==` checks value equality — it compares what two objects contain. `is` checks identity — it checks whether two variables point to the exact same object in memory (same address via `id()`).
+
+Most of the time you want `==`. Use `is` only when checking against singletons like `None`, `True`, or `False` — because there is only one `None` object in Python, so `is None` is always safe and correct.
+
+```python
+a = [1, 2, 3]
+b = [1, 2, 3]
+print(a == b)   # True  -- same values
+print(a is b)   # False -- two different list objects in memory
+
+c = a           # c points to the SAME object as a
+print(a is c)   # True
+```
+
+---
+
+### Q2. What is mutable vs immutable in Python?
+
+Mutable objects can be changed after creation. Immutable objects cannot — any "change" creates a new object instead.
+
+Immutable types: `int`, `float`, `str`, `tuple`, `bool`, `frozenset`. Mutable types: `list`, `dict`, `set`, `bytearray`.
+
+This matters because when you pass a mutable object to a function, the function can modify the original. When you pass an immutable object, the function cannot change the original — it can only create a new one.
+
+Tricky edge case: a tuple is immutable, but if it contains a list inside, that list can still be changed because the list itself is mutable.
+
+```python
+t = (1, [2, 3])
+t[1].append(4)   # works! t is now (1, [2, 3, 4])
+# The tuple didn't change (still holds same list reference), but the list inside did
+```
+
+---
+
+### Q3. What is the difference between shallow copy and deep copy?
+
+A shallow copy creates a new outer object but does not copy nested objects — it just copies references to them. So the outer container is new, but the inner objects are still shared with the original.
+
+A deep copy creates a completely independent copy at every level — new outer object, new inner objects, all the way down. Changes to the deep copy never affect the original.
+
+Use `copy.copy()` for shallow, `copy.deepcopy()` for deep. In practice, deep copy is what most people actually want when they say "I want a copy that won't affect the original."
+
+```python
+import copy
+original = [[1, 2], [3, 4]]
+
+shallow = copy.copy(original)
+deep    = copy.deepcopy(original)
+
+original[0][0] = 99
+print(shallow[0][0])  # 99 -- shallow copy shares the inner list
+print(deep[0][0])     # 1  -- deep copy is fully independent
+```
+
+---
+
+### Q4. What are `*args` and `**kwargs`?
+
+`*args` lets a function accept any number of positional arguments. Python collects them into a tuple. `**kwargs` lets a function accept any number of keyword arguments. Python collects them into a dictionary.
+
+They are useful when you want to write flexible functions that can handle a variable number of inputs — like a wrapper function that passes arguments through to another function without knowing what those arguments are.
+
+```python
+def func(*args, **kwargs):
+    print(args)    # (1, 2, 3)  -- tuple
+    print(kwargs)  # {'name': 'Sujit', 'age': 21}  -- dict
+
+func(1, 2, 3, name="Sujit", age=21)
+```
+
+---
+
+### Q5. What is a Python decorator and how does it work?
+
+A decorator is a function that takes another function as input, wraps it with extra behavior, and returns the wrapped version. The `@decorator` syntax is just shorthand for `func = decorator(func)`.
+
+Decorators are used for cross-cutting concerns — things you want to add to many functions without repeating code, like logging, timing, authentication checks, retry logic, or caching. FastAPI uses `@app.get("/")` as a decorator to register route handlers.
+
+```python
+def timer(func):
+    def wrapper(*args, **kwargs):
+        import time
+        start = time.time()
+        result = func(*args, **kwargs)
+        print(f"{func.__name__} took {time.time() - start:.3f}s")
+        return result
+    return wrapper
+
+@timer
+def slow_function():
+    import time; time.sleep(1)
+
+slow_function()  # prints: slow_function took 1.001s
+```
+
+---
+
+### Q6. What is a generator? How is it different from a list?
+
+A generator is a function that uses `yield` instead of `return`. It produces values one at a time on demand (lazy evaluation) instead of computing and storing all values upfront.
+
+The key difference is memory. A list with 1 million items stores all 1 million items in RAM at once. A generator stores only the current item — it computes the next one only when you ask for it with `next()`. This makes generators essential for processing large datasets, reading big files line by line, or streaming data.
+
+```python
+# List -- all 1 million values in memory immediately
+squares_list = [x**2 for x in range(1_000_000)]  # ~8MB RAM
+
+# Generator -- only one value in memory at a time
+def squares_gen(n):
+    for x in range(n):
+        yield x**2          # pauses here, resumes on next()
+
+gen = squares_gen(1_000_000)  # ~200 bytes RAM
+print(next(gen))  # 0
+print(next(gen))  # 1
+```
+
+---
+
+### Q7. What is the difference between `list`, `tuple`, `set`, and `dict`?
+
+These are Python's four main built-in collection types, each with a different purpose.
+
+`list` is ordered and mutable — use it when you need a sequence you can modify. `tuple` is ordered and immutable — use it for fixed data like coordinates or function return values (also faster than list). `set` is unordered with no duplicates — use it for membership testing or removing duplicates. `dict` is a key-value mapping — use it for lookups by name.
+
+```
+list   -- ordered, mutable, allows duplicates     [1, 2, 2, 3]
+tuple  -- ordered, immutable, allows duplicates   (1, 2, 2, 3)
+set    -- unordered, NO duplicates, mutable       {1, 2, 3}
+dict   -- key-value pairs, ordered (Python 3.7+)  {"a": 1, "b": 2}
+```
+
+---
+
+### Q8. What is a lambda function? When should you use it?
+
+A lambda is an anonymous, single-expression function defined inline. It is syntactic sugar for a simple function you only need once — typically as an argument to `sorted()`, `map()`, or `filter()`.
+
+You should use lambda only for simple, short operations. If the logic is more than one expression, write a proper named function — it is more readable and easier to test and debug.
+
+```python
+# Instead of defining a named function just for sorting
+students = [("Sujit", 9.43), ("Raj", 8.5), ("Priya", 9.1)]
+students.sort(key=lambda s: s[1], reverse=True)
+# lambda s: s[1] means "for each student tuple, use index 1 (the score) as the sort key"
+```
+
+---
+
+### Q9. What is list comprehension? When should you NOT use it?
+
+List comprehension is a concise way to create a list by applying an expression to each item in an iterable, optionally filtering with a condition. It is faster than an equivalent `for` loop because it is optimized at the C level in CPython.
+
+You should NOT use it when the logic is complex enough that it becomes hard to read on one line, when you have deeply nested loops, or when you have side effects (like printing or writing to a file) — a regular `for` loop is clearer in those cases. Readability always wins.
+
+```python
+# Good use -- simple and readable
+squares = [x**2 for x in range(10) if x % 2 == 0]
+
+# Bad use -- too complex, use a regular loop instead
+result = [process(transform(x)) for x in data if condition1(x) and condition2(x)]
+```
+
+---
+
+### Q10. What is the difference between `append`, `extend`, and `insert`?
+
+All three add elements to a list but in different ways. `append` adds its argument as a single element — even if you pass a list, it adds the whole list as one nested element. `extend` iterates over its argument and adds each item individually. `insert` adds one element at a specific index position.
+
+```python
+lst = [1, 2, 3]
+lst.append([4, 5])   # [1, 2, 3, [4, 5]]  -- list added as ONE element
+lst = [1, 2, 3]
+lst.extend([4, 5])   # [1, 2, 3, 4, 5]    -- each item added separately
+lst = [1, 2, 3]
+lst.insert(1, 99)    # [1, 99, 2, 3]       -- 99 inserted at index 1
+```
+
+---
+
+### Q11. What is the GIL (Global Interpreter Lock)?
+
+The GIL is a mutex (lock) in CPython — the standard Python interpreter — that allows only one thread to execute Python bytecode at a time, even on a multi-core machine.
+
+It exists because CPython's memory management (reference counting for garbage collection) is not thread-safe. The GIL protects it from race conditions.
+
+The practical impact: Python threads cannot achieve true parallelism for CPU-bound tasks. If you have 4 CPU cores and 4 threads doing heavy computation, only one runs at a time — you get no speedup. For I/O-bound tasks (waiting for network, file reads), the GIL is released during the wait, so threading works fine. For CPU-bound parallelism, use `multiprocessing` — each process has its own GIL.
+
+---
+
+### Q12. What is the difference between `__str__` and `__repr__`?
+
+Both return a string representation of an object, but they serve different audiences. `__str__` is for end users — it should be readable and human-friendly. `__repr__` is for developers — it should be unambiguous and ideally show enough information to recreate the object.
+
+When you call `print(obj)`, Python uses `__str__`. When you type an object in the Python shell or use `repr(obj)`, Python uses `__repr__`. If `__str__` is not defined, Python falls back to `__repr__`.
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __str__(self):   # for print() -- user-friendly
+        return f"{self.name}, age {self.age}"
+
+    def __repr__(self):  # for debugging -- developer-friendly
+        return f"Person(name='{self.name}', age={self.age})"
+
+p = Person("Sujit", 21)
+print(p)    # Sujit, age 21
+repr(p)     # Person(name='Sujit', age=21)
+```
+
+---
+
+### Q13. What are dunder (magic) methods in Python?
+
+Dunder methods (double underscore methods) are special methods that Python calls automatically in response to certain operations. They let you define how your objects behave with built-in operations like `+`, `len()`, `[]`, `in`, `with`, and `print()`.
+
+This is how Python achieves operator overloading — you define `__add__` and suddenly `obj1 + obj2` works for your custom class. They are the foundation of Python's data model.
+
+```
+__init__     called when object is created
+__str__      called by print() and str()
+__repr__     called by repr() and in the shell
+__len__      called by len(obj)
+__getitem__  called by obj[key]
+__eq__       called by obj1 == obj2
+__add__      called by obj1 + obj2
+__call__     called by obj() -- makes object callable like a function
+__enter__    called at start of with block
+__exit__     called at end of with block (even if exception occurred)
+```
+
+---
+
+### Q14. What is the difference between `@staticmethod`, `@classmethod`, and instance method?
+
+An instance method receives `self` as the first argument — it has access to the specific instance and can read/modify its attributes. This is the most common type.
+
+A class method receives `cls` (the class itself) as the first argument instead of an instance. It can access and modify class-level state. Most commonly used as alternative constructors — for example, `datetime.fromisoformat("2024-01-01")` is a class method that creates a `datetime` object from a string.
+
+A static method receives neither `self` nor `cls`. It is just a regular function that lives inside the class namespace for organizational purposes. It has no access to instance or class state.
+
+```python
+class Temperature:
+    unit = "Celsius"
+
+    def __init__(self, value):
+        self.value = value
+
+    def describe(self):                    # instance method -- needs self
+        return f"{self.value}° {Temperature.unit}"
+
+    @classmethod
+    def from_fahrenheit(cls, f):           # class method -- alternative constructor
+        return cls((f - 32) * 5 / 9)
+
+    @staticmethod
+    def is_valid(value):                   # static method -- utility, no self/cls needed
+        return -273.15 <= value <= 1e6
+
+t = Temperature.from_fahrenheit(212)      # creates Temperature(100)
+print(Temperature.is_valid(-300))         # False
+```
+
+---
+
+### Q15. What is the difference between `pass`, `continue`, and `break`?
+
+`pass` is a no-op — it does absolutely nothing. It is used as a placeholder where Python syntax requires a statement but you have nothing to put there yet, like an empty function body or an empty class.
+
+`continue` skips the rest of the current loop iteration and jumps to the next one. The loop itself keeps running.
+
+`break` exits the loop entirely. No more iterations happen.
+
+```python
+for i in range(6):
+    if i == 1:
+        pass      # does nothing, i=1 still prints
+    if i == 3:
+        continue  # skip printing 3, jump to i=4
+    if i == 5:
+        break     # stop the loop, never reach i=5
+    print(i)
+# Output: 0 1 2 4
+```
+
+---
+
+### Q16. What is exception handling? What is the role of `else` and `finally`?
+
+Exception handling lets you catch and respond to runtime errors gracefully instead of crashing. The `try` block contains code that might fail. `except` catches specific errors. `else` runs only if no exception occurred in the `try` block. `finally` always runs regardless — used for cleanup like closing files or database connections.
+
+The `else` block is often overlooked but important — it separates "code that might fail" from "code that runs on success," making the intent clearer.
+
+```python
+try:
+    result = 10 / int(input("Enter a number: "))
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+except ValueError:
+    print("Please enter a valid number")
+else:
+    print(f"Result: {result}")   # only runs if no exception
+finally:
+    print("Done")                # always runs -- good for cleanup
+```
+
+---
+
+### Q17. What is the difference between `range` and `xrange`?
+
+In Python 2, `range()` returned a full list in memory, while `xrange()` returned a lazy iterator that generated numbers one at a time. For large ranges, `xrange` was much more memory-efficient.
+
+In Python 3, `xrange` was removed and `range()` itself became lazy — it behaves like Python 2's `xrange`. So `range(1_000_000)` in Python 3 uses almost no memory. This is why you can write `for i in range(1_000_000)` without worrying about memory.
+
+---
+
+### Q18. What is `zip`, `map`, and `filter`?
+
+`zip` combines multiple iterables element by element into tuples. It stops at the shortest iterable. Useful for iterating over two lists in parallel.
+
+`map` applies a function to every element of an iterable and returns an iterator of results. It is a functional alternative to a list comprehension.
+
+`filter` keeps only the elements for which a function returns `True`. Both `map` and `filter` return lazy iterators in Python 3 — wrap with `list()` to get a list.
+
+```python
+names  = ["Sujit", "Raj", "Priya"]
+scores = [9.43, 8.5, 9.1]
+
+# zip -- pair them up
+for name, score in zip(names, scores):
+    print(f"{name}: {score}")
+
+# map -- apply function to each element
+upper_names = list(map(str.upper, names))   # ['SUJIT', 'RAJ', 'PRIYA']
+
+# filter -- keep only elements that pass the condition
+toppers = list(filter(lambda s: s > 9.0, scores))  # [9.43, 9.1]
+```
+
+---
+
+### Q19. What is a context manager? How does `with` work?
+
+A context manager is an object that defines setup and teardown behavior using `__enter__` and `__exit__` methods. The `with` statement calls `__enter__` at the start and guarantees `__exit__` is called at the end — even if an exception occurs.
+
+The most common use is resource management: opening files, database connections, or locks. Without `with`, you risk forgetting to close a file or release a lock if an exception happens midway.
+
+```python
+# Without with -- risky, file may not close if exception occurs
+f = open("file.txt")
+data = f.read()
+f.close()   # what if read() raised an exception? close() never called!
+
+# With context manager -- __exit__ always called, file always closed
+with open("file.txt") as f:
+    data = f.read()
+# file is closed here automatically, even if an exception occurred
+```
+
+---
+
+### Q20. What is the difference between `global` and `nonlocal`?
+
+By default, a variable assigned inside a function is local to that function. `global` tells Python that a variable name refers to the module-level (global) variable, not a new local one. `nonlocal` tells Python that a variable refers to the nearest enclosing function's scope (not global, not local).
+
+`nonlocal` is used in nested functions (closures) when the inner function needs to modify a variable from the outer function.
+
+```python
+x = 10
+
+def outer():
+    y = 20
+    def inner():
+        global x     # x refers to the module-level x = 10
+        nonlocal y   # y refers to outer()'s y = 20
+        x = 99
+        y = 99
+    inner()
+    print(y)  # 99 -- nonlocal let inner() modify outer's y
+
+outer()
+print(x)  # 99 -- global let inner() modify module-level x
+```
+
+---
+
+### Q21. What is the difference between `/`, `//`, and `%`?
+
+`/` is true division — always returns a float, even if both operands are integers. `//` is floor division — returns the largest integer less than or equal to the result (rounds toward negative infinity, not toward zero). `%` is modulo — returns the remainder after floor division.
+
+The tricky part is negative numbers. `-7 // 2` gives `-4` (not `-3`) because floor division rounds toward negative infinity. Python's modulo always returns a non-negative result when the divisor is positive.
+
+```python
+10 / 3    # 3.3333...  -- always float
+10 // 3   # 3          -- floor division
+10 % 3    # 1          -- remainder
+-7 // 2   # -4         -- rounds DOWN toward -infinity (not -3!)
+-7 % 2    # 1          -- always non-negative when divisor is positive
+```
+
+---
+
+### Q22. What is the difference between `None`, `False`, `0`, `""`, and `[]`?
+
+All of these are "falsy" — they evaluate to `False` in a boolean context like an `if` statement. But they are not equal to each other (except `0 == False`, which is `True` because `bool` is a subclass of `int` in Python).
+
+`None` means "no value" or "absence of a value." `False` is a boolean. `0` is an integer. `""` is an empty string. `[]` is an empty list. They represent different things and should not be confused even though they all behave like `False` in conditions.
+
+```python
+# All falsy -- these if-blocks won't execute
+if None: ...
+if False: ...
+if 0: ...
+if "": ...
+if []: ...
+
+# But they are NOT equal
+None == False   # False
+None == 0       # False
+0 == False      # True  -- because bool is a subclass of int
+```
+
+---
+
+### Q23. What is the difference between `sort()` and `sorted()`?
+
+`sort()` is a list method that sorts the list in place and returns `None`. It modifies the original list. `sorted()` is a built-in function that returns a new sorted list and leaves the original unchanged. `sorted()` works on any iterable (tuples, sets, strings), not just lists.
+
+Use `sort()` when you want to sort the list itself and don't need the original order. Use `sorted()` when you need to keep the original or when working with non-list iterables.
+
+```python
+lst = [3, 1, 4, 1, 5]
+lst.sort()                        # modifies lst in place, returns None
+new = sorted([3, 1, 4, 1, 5])    # returns new list, original unchanged
+
+# Both support key and reverse
+sorted(lst, key=lambda x: -x)    # sort descending
+sorted(students, key=lambda s: s[1])  # sort by second element
+```
+
+---
+
+### Q24. What is a closure in Python?
+
+A closure is a function that remembers and has access to variables from its enclosing scope even after that outer function has finished executing. The inner function "closes over" the variables from the outer scope.
+
+Closures are used to create function factories (functions that create other functions), to implement decorators, and to maintain state without using a class.
+
+```python
+def make_multiplier(n):
+    def multiplier(x):
+        return x * n   # n is from the outer scope -- "closed over"
+    return multiplier  # returns the inner function
+
+double = make_multiplier(2)  # outer() finished, but n=2 is remembered
+triple = make_multiplier(3)
+
+print(double(5))  # 10 -- n=2 is still accessible
+print(triple(5))  # 15 -- n=3 is still accessible
+```
+
+---
+
+### Q25. What is the difference between `__init__` and `__new__`?
+
+`__new__` is called first — it creates and returns the new instance of the class. It is a static method that receives the class as its first argument. `__init__` is called second — it receives the already-created instance (`self`) and initializes its attributes.
+
+In normal usage you only define `__init__`. You override `__new__` only in advanced cases like implementing the Singleton pattern (to control how many instances are created) or when subclassing immutable types like `int` or `str`.
+
+```python
+class MyClass:
+    def __new__(cls, value):
+        print(f"__new__: creating instance")
+        instance = super().__new__(cls)  # actually creates the object
+        return instance
+
+    def __init__(self, value):
+        print(f"__init__: initializing with {value}")
+        self.value = value
+
+obj = MyClass(42)
+# __new__: creating instance
+# __init__: initializing with 42
+```
+
+---
+
+### Q26. What is `@property` and why use it instead of a regular attribute?
+
+`@property` lets you define a method that is accessed like an attribute — no parentheses needed. It is used to add computed attributes (values calculated from other attributes) and to add validation when setting a value, without changing the public interface of the class.
+
+The benefit is encapsulation. You can start with a plain attribute, and later add validation or computation by converting it to a property — all existing code that accesses `obj.radius` continues to work unchanged.
+
+```python
+class Circle:
+    def __init__(self, radius):
+        self._radius = radius
+
+    @property
+    def radius(self):           # getter -- accessed as c.radius (no parentheses)
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):    # setter -- called when c.radius = 5
+        if value < 0:
+            raise ValueError("Radius cannot be negative")
+        self._radius = value
+
+    @property
+    def area(self):             # computed attribute -- no setter needed
+        return 3.14 * self._radius ** 2
+
+c = Circle(5)
+c.radius = 10   # calls setter with validation
+print(c.area)   # 314.0 -- computed on access, looks like an attribute
+```
+
+---
+
+### Q27. What is the difference between `isinstance()` and `type()`?
+
+`type(obj)` returns the exact class of an object. It does not consider inheritance — `type(dog) == Animal` is `False` even if `Dog` inherits from `Animal`.
+
+`isinstance(obj, cls)` checks if an object is an instance of a class or any of its subclasses. It respects the inheritance chain. This is almost always what you want when doing type checking.
+
+Always prefer `isinstance` because it works correctly with inheritance and is more Pythonic (duck typing friendly).
+
+```python
+class Animal: pass
+class Dog(Animal): pass
+
+d = Dog()
+type(d) == Dog      # True
+type(d) == Animal   # False -- type() is exact match only
+
+isinstance(d, Dog)    # True
+isinstance(d, Animal) # True -- isinstance checks the full inheritance chain
+```
+
+---
+
+### Q28. What is `enumerate` and why use it instead of `range(len(...))`?
+
+`enumerate` wraps an iterable and yields `(index, value)` pairs. It is the Pythonic way to loop over a sequence when you need both the index and the value.
+
+`range(len(lst))` is considered un-Pythonic because it is indirect — you get the index and then have to use it to access the value. `enumerate` is cleaner, more readable, and works on any iterable (not just lists).
+
+```python
+fruits = ["apple", "banana", "cherry"]
+
+# Un-Pythonic
+for i in range(len(fruits)):
+    print(i, fruits[i])
+
+# Pythonic -- cleaner and works on any iterable
+for i, fruit in enumerate(fruits):
+    print(i, fruit)
+
+# Start counting from 1 instead of 0
+for i, fruit in enumerate(fruits, start=1):
+    print(f"{i}. {fruit}")   # 1. apple, 2. banana, 3. cherry
+```
+
+---
+
+### Q1. What is the difference between `is` and `==`?
 ```python
 a = [1, 2, 3]
 b = [1, 2, 3]
@@ -4908,80 +5478,442 @@ print(p1)         # Person(name='Sujit', age=21)
 
 ---
 
-### Web & HTTP Fundamentals
+### Q1. What is HTTP and HTTPS? What is the difference?
 
-**Q1. What is HTTP and HTTPS?**
-- HTTP (HyperText Transfer Protocol) is the protocol used to transfer data between a client (browser) and a server.
-- HTTPS is HTTP with SSL/TLS encryption. Data is encrypted in transit so it can't be intercepted.
-- Port: HTTP = 80, HTTPS = 443
+HTTP (HyperText Transfer Protocol) is the foundation of data communication on the web. It is a request-response protocol — the client (browser or app) sends a request, and the server sends back a response. Every time you open a webpage, your browser is making HTTP requests.
 
----
+HTTPS is HTTP with an added security layer called SSL/TLS. The data transferred between client and server is encrypted, so even if someone intercepts the traffic, they cannot read it. This is why login pages, payment forms, and any page handling sensitive data must use HTTPS.
 
-**Q2. What are HTTP methods? Explain GET, POST, PUT, PATCH, DELETE.**
-```
-GET     -- retrieve data, no body, idempotent, can be cached
-POST    -- create new resource, has body, NOT idempotent
-PUT     -- replace entire resource, idempotent
-PATCH   -- partially update resource, NOT always idempotent
-DELETE  -- delete resource, idempotent
-
-Idempotent = calling it multiple times gives same result
-GET /users/1       -- get user with id 1
-POST /users        -- create new user
-PUT /users/1       -- replace user 1 completely
-PATCH /users/1     -- update only specific fields of user 1
-DELETE /users/1    -- delete user 1
-```
+HTTP uses port 80 by default. HTTPS uses port 443. In modern web development, you should always use HTTPS — browsers now show a "Not Secure" warning for HTTP sites.
 
 ---
 
-**Q3. What are HTTP status codes?**
+**Q5. What is the difference between REST and GraphQL?**
+
+REST uses multiple endpoints — one URL per resource type (`/users`, `/posts`, `/comments`). The server decides what data each endpoint returns. This can lead to over-fetching (getting more data than you need) or under-fetching (needing to make multiple requests to get all the data you need).
+
+GraphQL uses a single endpoint (`/graphql`). The client sends a query specifying exactly which fields it needs, and the server returns only those fields. No over-fetching, no under-fetching. This is especially powerful for mobile apps where bandwidth matters.
+
+REST is simpler, more widely understood, and easier to cache. GraphQL is better for complex, nested data with many related entities, or when different clients (mobile, web, desktop) need different shapes of the same data.
+
+In practice, most companies use REST for simple CRUD APIs and consider GraphQL when they have complex data requirements or many different client types.
+
+**Q6. What is an API?**
+
+API (Application Programming Interface) is a contract that defines how two software systems communicate. It specifies what requests you can make, what format to send them in, and what responses to expect.
+
+A REST API is one specific type of API that uses HTTP and follows REST principles. Other types include GraphQL (query language for APIs), gRPC (high-performance binary protocol, used between microservices), WebSocket (real-time bidirectional communication), and SOAP (older XML-based protocol, still used in enterprise/banking).
+
+**Q7. What is JSON and why is it used in APIs?**
+
+JSON (JavaScript Object Notation) is a lightweight, text-based data format for representing structured data as key-value pairs, arrays, and nested objects. It is the standard format for REST API request and response bodies.
+
+It became the standard because it is human-readable, easy to parse in every programming language, and maps naturally to objects in most languages. It replaced XML (which was verbose and harder to parse) as the dominant API data format around 2010.
+
+```json
+{
+  "name": "Sujit",
+  "age": 21,
+  "skills": ["Python", "AI", "FastAPI"],
+  "address": { "city": "Pune", "country": "India" }
+}
 ```
-1xx -- Informational
-2xx -- Success
-  200 OK              -- request succeeded
-  201 Created         -- resource created (POST)
-  204 No Content      -- success, no body (DELETE)
 
-3xx -- Redirection
-  301 Moved Permanently
-  302 Found (temporary redirect)
-  304 Not Modified    -- use cached version
+**Q8. What is the difference between synchronous and asynchronous programming?**
 
-4xx -- Client Error
-  400 Bad Request     -- invalid input
-  401 Unauthorized    -- not authenticated
-  403 Forbidden       -- authenticated but no permission
-  404 Not Found       -- resource doesn't exist
-  422 Unprocessable   -- validation error
-  429 Too Many Requests -- rate limited
+Synchronous programming means tasks execute one at a time, in order. Each task must complete before the next one starts. If a task involves waiting (like an API call that takes 2 seconds), the entire program is blocked and does nothing during that wait.
 
-5xx -- Server Error
-  500 Internal Server Error -- server crashed
-  502 Bad Gateway           -- upstream server error
-  503 Service Unavailable   -- server overloaded/down
+Asynchronous programming means a task can start, then yield control while waiting for something (like a network response), allowing other tasks to run in the meantime. When the wait is over, the original task resumes. This makes much better use of time — instead of sitting idle during I/O waits, the program does other useful work.
+
+For AI applications, async is critical. LLM API calls can take 2–10 seconds. With sync code, your server can only handle one request at a time. With async, it can handle hundreds of concurrent requests while they all wait for their LLM responses.
+
+```python
+# Sync -- server blocked for 2s, can't handle other requests
+def get_answer(query):
+    response = requests.post(llm_url, json={"query": query})  # blocks here
+    return response.json()
+
+# Async -- server free to handle other requests while waiting
+async def get_answer(query):
+    async with aiohttp.ClientSession() as session:
+        response = await session.post(llm_url, json={"query": query})  # yields control
+        return await response.json()
 ```
+
+**Q9. What is a database? What is the difference between SQL and NoSQL?**
+
+A database is an organized system for storing, retrieving, and managing data. Without a database, data would be lost when the application restarts.
+
+SQL databases (PostgreSQL, MySQL, SQLite) store data in structured tables with rows and columns. They enforce a fixed schema — every row must have the same columns with the same data types. They support ACID transactions, which guarantee data integrity. They are excellent when your data has clear relationships (users have orders, orders have products).
+
+NoSQL databases (MongoDB, Cassandra, Redis, DynamoDB) store data in flexible formats — documents, key-value pairs, or wide columns. They do not enforce a fixed schema, so different records can have different fields. They scale horizontally more easily and handle very high write volumes better.
+
+Choose SQL when data is structured, relationships matter, and consistency is critical (banking, e-commerce). Choose NoSQL when data is unstructured, schema changes frequently, or you need massive scale (social media activity logs, IoT sensor data).
+
+**Q10. What is CRUD?**
+
+CRUD stands for Create, Read, Update, Delete — the four basic operations you can perform on any data. Almost every application is fundamentally a CRUD application at its core.
+
+Create maps to SQL INSERT and HTTP POST. Read maps to SQL SELECT and HTTP GET. Update maps to SQL UPDATE and HTTP PUT or PATCH. Delete maps to SQL DELETE and HTTP DELETE.
+
+When an interviewer asks you to build a simple API, they are almost always asking for a CRUD API.
+
+**Q11. What is an ORM and why use it?**
+
+ORM (Object-Relational Mapper) is a library that lets you interact with a relational database using your programming language's objects instead of writing raw SQL. You define Python classes that map to database tables, and the ORM translates your Python operations into SQL queries automatically.
+
+The benefits are: you write Python instead of SQL (less context switching), the ORM handles SQL injection prevention automatically (parameterized queries by default), and you get database portability (switch from SQLite to PostgreSQL by changing one config line).
+
+The downside is that ORMs can generate inefficient SQL for complex queries. For performance-critical queries, you can always drop down to raw SQL even when using an ORM.
+
+```python
+# Raw SQL -- verbose, manual, injection risk if not careful
+cursor.execute("SELECT * FROM users WHERE id = %s AND active = %s", (user_id, True))
+
+# ORM (SQLAlchemy) -- cleaner, safe, Pythonic
+user = session.query(User).filter(User.id == user_id, User.active == True).first()
+```
+
+**Q12. What is database indexing and why does it matter?**
+
+An index is a separate data structure (usually a B-tree) that the database maintains alongside a table to speed up lookups on specific columns. Without an index, a query like `WHERE email = 'sujit@email.com'` requires scanning every single row in the table — O(n). With an index on the email column, the database can jump directly to the matching rows — O(log n).
+
+The trade-off is that indexes take up extra disk space and slow down INSERT, UPDATE, and DELETE operations slightly (because the index must be updated too). So you add indexes on columns you frequently search, filter, sort, or join on — not on every column.
+
+Primary keys are automatically indexed. Foreign keys should almost always be indexed. Columns used in WHERE clauses frequently are good candidates.
+
+**Q13. What is a primary key vs a foreign key?**
+
+A primary key is a column (or combination of columns) that uniquely identifies each row in a table. It cannot be NULL and must be unique. Every table should have a primary key. It is automatically indexed.
+
+A foreign key is a column in one table that references the primary key of another table. It creates a relationship between the two tables and enforces referential integrity — you cannot insert a foreign key value that does not exist in the referenced table, and you cannot delete a row that is referenced by a foreign key (unless you cascade the delete).
+
+```
+users table:  id (PK), name, email
+posts table:  id (PK), user_id (FK → users.id), title, content
+
+user_id in posts is a foreign key -- it must match an existing id in users
+```
+
+**Q14. What is database normalization?**
+
+Normalization is the process of organizing a database to eliminate data redundancy (storing the same data in multiple places) and ensure data integrity. The idea is that each piece of information should be stored in exactly one place.
+
+1NF (First Normal Form): each column holds atomic (indivisible) values. No repeating groups or arrays in a column.
+
+2NF (Second Normal Form): no partial dependencies — every non-key column must depend on the entire primary key, not just part of it. Relevant when you have composite primary keys.
+
+3NF (Third Normal Form): no transitive dependencies — non-key columns should not depend on other non-key columns. If city depends on zip_code, and zip_code is not the primary key, move city and zip_code to a separate table.
+
+In practice, most databases are designed to 3NF. Sometimes you intentionally denormalize (store redundant data) for performance — this is a deliberate trade-off.
+
+**Q15. What is a database transaction? What is ACID?**
+
+A transaction is a sequence of database operations that are treated as a single unit of work. Either all operations succeed and are committed, or if any operation fails, all changes are rolled back and the database is left unchanged. This prevents partial updates that leave data in an inconsistent state.
+
+The classic example is a bank transfer: debit $100 from Account A, credit $100 to Account B. If the debit succeeds but the credit fails, you have lost $100. A transaction ensures both happen or neither happens.
+
+ACID is the set of properties that guarantee reliable transactions:
+- Atomicity: all operations in the transaction succeed, or none of them do. No partial updates.
+- Consistency: the database moves from one valid state to another. All constraints and rules are maintained.
+- Isolation: concurrent transactions do not interfere with each other. Each transaction sees a consistent snapshot of the data.
+- Durability: once a transaction is committed, it is permanent — even if the server crashes immediately after.
+
+**Q16. What is caching? What is Redis?**
+
+Caching is storing the result of an expensive operation in fast memory so future requests can be served without repeating the work. The goal is to reduce latency and reduce load on the database or external services.
+
+Redis is an in-memory key-value store that is extremely fast — it can handle millions of operations per second with sub-millisecond latency. It is the most popular caching solution. Beyond caching, Redis is also used for session storage, rate limiting, pub/sub messaging, and leaderboards.
+
+Cache-aside (lazy loading) is the most common pattern: the application checks the cache first. On a cache miss, it reads from the database and stores the result in the cache for future requests. The cache entry expires after a TTL (time-to-live) to prevent stale data.
+
+The hardest problem in caching is cache invalidation — knowing when to remove or update a cached value when the underlying data changes.
+
+**Q17. What is a message queue? When do you use Kafka vs RabbitMQ?**
+
+A message queue is a buffer that sits between services. A producer sends a message to the queue, and a consumer reads and processes it. The producer and consumer are decoupled — they do not need to be running at the same time or at the same speed.
+
+You use a message queue when you want to process tasks asynchronously (send a welcome email after signup without blocking the signup response), handle traffic spikes (queue absorbs the burst, consumers process at their own pace), or communicate between microservices without tight coupling.
+
+Kafka is designed for high-throughput event streaming. It retains messages for days and allows multiple independent consumers to read the same messages. Use Kafka for event sourcing, analytics pipelines, and audit logs.
+
+RabbitMQ is a traditional message broker with flexible routing. Each message is typically consumed by exactly one consumer and then deleted. Use RabbitMQ for task queues where you want to distribute work across multiple workers.
+
+**Q18. What is Docker and why is it used?**
+
+Docker is a platform for packaging an application and all its dependencies (runtime, libraries, config) into a standardized unit called a container. The container runs the same way on any machine — your laptop, a colleague's machine, or a production server.
+
+The problem Docker solves is "it works on my machine." Before Docker, deploying an application meant manually installing the right Python version, the right libraries, and the right system dependencies on every server. With Docker, you define everything in a Dockerfile, build an image once, and run it anywhere.
+
+A container is like a lightweight virtual machine, but instead of virtualizing the entire OS, it shares the host OS kernel and only isolates the application's filesystem and processes. This makes containers much faster to start and much smaller than VMs.
+
+**Q19. What is CI/CD?**
+
+CI (Continuous Integration) is the practice of developers merging their code changes into a shared repository frequently — multiple times a day. Each merge triggers an automated pipeline that builds the code and runs all tests. The goal is to catch integration bugs early, before they accumulate.
+
+CD (Continuous Delivery) means the code is always in a deployable state. After CI passes, the code is automatically packaged and ready to deploy to production with a single click or approval.
+
+CD (Continuous Deployment) goes one step further — every change that passes CI is automatically deployed to production without any manual step.
+
+The benefit is speed and confidence. Instead of a stressful monthly release with hundreds of changes, you deploy small changes frequently. If something breaks, it is easy to identify which change caused it and roll it back.
+
+**Q20. What is authentication vs authorization?**
+
+Authentication is the process of verifying who you are. It answers the question "are you who you claim to be?" — login with username/password, Google OAuth, fingerprint, etc.
+
+Authorization is the process of verifying what you are allowed to do. It answers "do you have permission to do this?" — can this user read this document, delete this record, access this admin panel?
+
+Authentication always comes first. You cannot authorize someone whose identity you have not verified. A common mistake is confusing 401 (Unauthorized — actually means unauthenticated, you need to log in) with 403 (Forbidden — you are authenticated but do not have permission).
+
+**Q21. What is JWT (JSON Web Token)?**
+
+JWT is a compact, self-contained token format used for authentication. After a user logs in, the server creates a JWT containing the user's ID and role, signs it with a secret key, and sends it to the client. The client stores it and sends it with every subsequent request in the Authorization header.
+
+The server can verify the token by checking the signature — it does not need to look up the user in the database on every request. This makes JWT stateless and scalable.
+
+The JWT has three parts separated by dots: Header (algorithm used), Payload (user data like id, role, expiry), and Signature (HMAC of header + payload using the secret key). If anyone tampers with the payload, the signature will not match and the token is rejected.
+
+The main weakness of JWT is that you cannot invalidate a token before it expires. If a user logs out or their account is compromised, the token is still valid until expiry. Solutions include short expiry times with refresh tokens, or maintaining a token blacklist in Redis.
+
+**Q22. What is OAuth 2.0?**
+
+OAuth 2.0 is an authorization framework that allows a user to grant a third-party application access to their data on another service, without sharing their password.
+
+When you click "Login with Google," you are using OAuth. Your app never sees your Google password. Instead, Google authenticates you and gives your app an access token that it can use to call Google APIs on your behalf.
+
+The key insight is delegation — you are delegating limited access to your data. The scope defines exactly what the app can access (read your email, see your profile, etc.). You can revoke this access at any time from your Google account settings.
+
+**Q23. What is CORS and why does it exist?**
+
+CORS (Cross-Origin Resource Sharing) is a browser security mechanism that blocks JavaScript from making requests to a different origin (different domain, port, or protocol) than the page it is running on.
+
+It exists to prevent malicious websites from making API calls on behalf of a logged-in user. If you are logged into your bank and visit a malicious site, without CORS the malicious site's JavaScript could make requests to your bank's API using your cookies.
+
+When your frontend (running on `localhost:3000`) calls your backend API (running on `localhost:8000`), the browser blocks it because the origins are different. You fix this by configuring your backend to send CORS headers that explicitly allow your frontend's origin.
+
+**Q24. What is SQL injection and how do you prevent it?**
+
+SQL injection is an attack where a malicious user inserts SQL code into an input field, and that code gets executed as part of a database query. It is one of the most common and dangerous web vulnerabilities.
+
+If you build a query by concatenating user input directly into a SQL string, an attacker can input something like `'; DROP TABLE users; --` and destroy your database.
+
+The prevention is always using parameterized queries (also called prepared statements). The database driver separates the SQL code from the data — the user input is always treated as data, never as SQL code. ORMs like SQLAlchemy use parameterized queries by default, which is one reason to use them.
+
+```python
+# VULNERABLE -- never do this
+query = f"SELECT * FROM users WHERE name = '{user_input}'"
+
+# SAFE -- parameterized query
+cursor.execute("SELECT * FROM users WHERE name = %s", (user_input,))
+```
+
+**Q25. What is the difference between TCP and UDP?**
+
+TCP (Transmission Control Protocol) is a connection-oriented protocol. Before sending data, it establishes a connection with a 3-way handshake. It guarantees that all data arrives, in the correct order, with no duplicates. If a packet is lost, TCP automatically retransmits it. This reliability comes at the cost of overhead and latency.
+
+UDP (User Datagram Protocol) is connectionless. It just sends packets without establishing a connection or guaranteeing delivery. Packets can arrive out of order, be duplicated, or be lost entirely. But it is much faster because there is no overhead.
+
+Use TCP when reliability matters: HTTP, HTTPS, email, file transfers, database connections. Use UDP when speed matters more than reliability: video streaming (a dropped frame is better than pausing to retransmit), online gaming (old position data is useless anyway), DNS lookups (fast, small queries).
+
+**Q26. What is DNS?**
+
+DNS (Domain Name System) is the internet's phone book. It translates human-readable domain names like `www.google.com` into IP addresses like `142.250.195.46` that computers use to communicate.
+
+When you type a URL, your browser first checks its local cache, then your OS cache, then queries a DNS resolver (usually provided by your ISP or a public resolver like 8.8.8.8). The resolver works through a hierarchy — root nameservers, TLD nameservers (.com, .in), and finally the authoritative nameserver for that specific domain — to find the IP address.
+
+DNS is why you can change your server's IP address without users noticing — you just update the DNS record and within minutes (based on TTL) everyone is directed to the new IP.
+
+**Q27. What is a CDN?**
+
+A CDN (Content Delivery Network) is a globally distributed network of servers that caches and serves content from the location geographically closest to the user.
+
+Without a CDN, a user in Mumbai requesting an image from a server in the US experiences 200ms+ of network latency just for the round trip. With a CDN, that image is cached on a server in Mumbai and served in under 10ms.
+
+CDNs are used for static assets (images, CSS, JavaScript, fonts), video streaming, and as a DDoS protection layer. When you deploy a new version of a file, you either use cache-busting (change the filename) or invalidate the CDN cache.
+
+**Q28. What is WebSocket?**
+
+WebSocket is a communication protocol that provides a persistent, full-duplex (two-way) connection between client and server over a single TCP connection.
+
+Regular HTTP is request-response — the client asks, the server answers, the connection closes. For real-time features like chat, live notifications, or collaborative editing, this is inefficient because the client would have to constantly poll the server asking "anything new?"
+
+WebSocket keeps the connection open. Either side can send a message at any time without waiting for the other to ask. This is how WhatsApp Web, Google Docs live collaboration, and live stock price feeds work.
+
+**Q29. What is the difference between horizontal and vertical scaling?**
+
+Vertical scaling (scaling up) means adding more resources to your existing server — more CPU, more RAM, faster storage. It is simple because you do not change your application. But it has a hard limit (you can only add so much to one machine) and is a single point of failure.
+
+Horizontal scaling (scaling out) means adding more servers and distributing the load across them with a load balancer. There is no theoretical limit — you can keep adding servers. But it requires your application to be stateless (no session data stored on the server, because the next request might go to a different server).
+
+Most modern cloud architectures use horizontal scaling because it is more resilient and cost-effective — you can add servers during peak traffic and remove them when traffic drops.
+
+**Q30. What is Big O notation?**
+
+Big O notation describes how the time or space requirements of an algorithm grow as the input size grows. It gives you a way to compare algorithms independent of hardware or implementation details.
+
+O(1) means constant time — the operation takes the same time regardless of input size. Dictionary lookup is O(1). O(n) means linear time — time grows proportionally with input size. Looping through a list is O(n). O(n²) means quadratic — nested loops. O(log n) means logarithmic — binary search halves the search space each step.
+
+In interviews, you are expected to state the time and space complexity of your solution. Always analyze the worst case unless told otherwise.
+
+```
+O(1)       -- dict lookup, array access by index
+O(log n)   -- binary search, balanced BST operations
+O(n)       -- single loop, linear search
+O(n log n) -- merge sort, Python's built-in sort (Timsort)
+O(n²)      -- nested loops, bubble sort
+O(2^n)     -- recursive fibonacci without memoization
+```
+
+**Q31. What is the difference between a stack and a queue?**
+
+A stack is a LIFO (Last In, First Out) data structure. The last element you add is the first one you remove — like a stack of plates. Operations: push (add to top), pop (remove from top). Used for: function call stack, undo/redo, DFS traversal, matching brackets.
+
+A queue is a FIFO (First In, First Out) data structure. The first element you add is the first one you remove — like a line at a ticket counter. Operations: enqueue (add to back), dequeue (remove from front). Used for: BFS traversal, task scheduling, print queues, message queues.
+
+In Python, use a list for a stack (`.append()` and `.pop()`). Use `collections.deque` for a queue (`.append()` and `.popleft()`) — deque has O(1) operations on both ends, while a list's `.pop(0)` is O(n).
+
+**Q32. What is recursion? What must every recursive function have?**
+
+Recursion is when a function calls itself to solve a smaller version of the same problem. It is useful for problems that have a naturally recursive structure — trees, graphs, divide-and-conquer algorithms.
+
+Every recursive function must have a base case — a condition where the function stops calling itself and returns a value directly. Without a base case, the function calls itself forever until Python raises a `RecursionError` (default limit is 1000 calls deep).
+
+The mental model: trust that the recursive call correctly solves the smaller problem, and focus on how to combine that result with the current step.
+
+```python
+def factorial(n):
+    if n == 0:              # base case -- stop here
+        return 1
+    return n * factorial(n - 1)  # recursive case -- smaller problem
+
+# factorial(4) = 4 * factorial(3) = 4 * 3 * factorial(2) = 4 * 3 * 2 * 1 = 24
+```
+
+**Q33. What is the difference between compiled and interpreted languages?**
+
+A compiled language (C, C++, Go, Rust) translates source code into machine code before execution. The compiler produces a binary executable that runs directly on the CPU. This makes compiled programs very fast at runtime, but you must compile for each target platform.
+
+An interpreted language (Python, JavaScript, Ruby) is executed line by line at runtime by an interpreter. There is no separate compilation step — you just run the source file. This makes development faster and more flexible, but execution is slower because the interpreter adds overhead.
+
+Python is actually a hybrid — it compiles source code to bytecode (`.pyc` files) first, then the CPython virtual machine interprets the bytecode. This is why Python is faster than a pure interpreter but slower than a fully compiled language.
+
+**Q34. What is an environment variable and why should you use it?**
+
+An environment variable is a key-value pair stored in the operating system's environment, outside of your application code. Your application reads these values at runtime.
+
+You use environment variables to store configuration that changes between environments (development, staging, production) and to store secrets (API keys, database passwords) that should never be committed to version control.
+
+If you hardcode `OPENAI_API_KEY = "sk-abc123"` in your code and push it to GitHub, that key is now public and will be found by bots within minutes. Environment variables keep secrets out of your codebase entirely.
+
+```python
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # reads .env file into environment
+
+api_key = os.getenv("OPENAI_API_KEY")  # reads from environment
+db_url  = os.getenv("DATABASE_URL", "sqlite:///./default.db")  # with fallback
+```
+
+**Q35. What is rate limiting and why is it important?**
+
+Rate limiting restricts how many requests a client can make to an API within a given time window. For example, 100 requests per minute per user.
+
+Without rate limiting, a single client could flood your server with thousands of requests per second, consuming all your resources and making the service unavailable for everyone else (a denial-of-service attack). Rate limiting also prevents abuse of expensive operations like LLM API calls.
+
+When a client exceeds the limit, the server returns 429 Too Many Requests. The response typically includes headers telling the client when the limit resets so it can retry.
+
+**Q36. What is a webhook?**
+
+A webhook is a way for one system to notify another system in real time when an event occurs, by sending an HTTP POST request to a pre-configured URL.
+
+The alternative is polling — your application repeatedly asks "did anything happen?" every few seconds. This is wasteful. A webhook is push-based — the other system calls you when something happens.
+
+For example, when a payment succeeds on Stripe, Stripe sends a POST request to your webhook URL with the payment details. Your server receives it and updates the order status. You do not need to poll Stripe every second asking "did the payment go through?"
+
+**Q37. What is Docker and what is the difference between an image and a container?**
+
+A Docker image is a read-only blueprint — it contains the application code, runtime, libraries, and all dependencies, packaged together. Think of it like a class definition.
+
+A Docker container is a running instance of an image — it is the actual running process with its own isolated filesystem and network. Think of it like an object created from a class. You can run multiple containers from the same image simultaneously.
+
+You build an image from a Dockerfile (a set of instructions). You push images to a registry (Docker Hub, AWS ECR). You pull images and run them as containers on any machine.
+
+**Q38. What is CI/CD and what are its benefits?**
+
+CI (Continuous Integration) means developers merge code to the main branch frequently — multiple times a day. Each merge automatically triggers a pipeline that builds the code and runs all tests. This catches bugs early, before they compound with other changes.
+
+CD (Continuous Delivery/Deployment) means every change that passes CI is automatically prepared for deployment (Delivery) or automatically deployed to production (Deployment).
+
+The benefits: faster release cycles, smaller and safer deployments (easier to identify what broke), higher confidence (automated tests catch regressions), and less manual work. Instead of a stressful quarterly release, you deploy small changes daily.
+
+**Q39. What is SOLID and why does it matter?**
+
+SOLID is a set of five design principles for writing maintainable, extensible object-oriented code.
+
+Single Responsibility: a class should do one thing and have one reason to change. A class that handles both database queries and email sending is doing too much.
+
+Open/Closed: classes should be open for extension but closed for modification. Add new behavior by adding new code, not by changing existing code.
+
+Liskov Substitution: a subclass should be usable anywhere its parent class is used, without breaking the program.
+
+Interface Segregation: do not force classes to implement methods they do not need. Split large interfaces into smaller, focused ones.
+
+Dependency Inversion: depend on abstractions (interfaces/ABCs), not concrete implementations. This makes code easier to test and swap components.
+
+**Q40. What is technical debt?**
+
+Technical debt is the accumulated cost of shortcuts, quick fixes, and poor design decisions made in the past. Like financial debt, it accrues interest — the longer you leave it, the harder and more expensive it becomes to fix.
+
+It happens when teams prioritize speed over quality: skipping tests to ship faster, copying code instead of refactoring, using a quick hack instead of a proper solution.
+
+Signs of high technical debt: adding a new feature takes weeks because the codebase is tangled, every change breaks something unexpected, no one wants to touch certain parts of the code, and onboarding new developers takes months.
+
+Managing it requires discipline: allocate time in every sprint for refactoring, write tests before changing risky code, and document decisions so future developers understand why things were done a certain way.
 
 ---
 
-**Q4. What is REST API?**
-REST (Representational State Transfer) is an architectural style for designing APIs.
+> **Quick Revision Summary:**
+> HTTP: GET (read), POST (create), PUT (replace), PATCH (partial update), DELETE (remove). Status codes: 2xx success, 4xx client error, 5xx server error. REST is stateless, resource-based, uniform interface. JWT is stateless auth token. OAuth is delegated authorization. SQL for structured relational data, NoSQL for flexible/high-scale. ACID ensures transaction reliability. Redis for caching. Docker packages apps into containers. CI/CD automates testing and deployment. SOLID principles guide maintainable OOP design.
 
-REST principles:
-- Stateless: each request contains all info needed, server stores no session
-- Client-Server: client and server are separate
-- Uniform Interface: consistent URL structure and HTTP methods
-- Resource-based: everything is a resource identified by URL
-- Cacheable: responses can be cached
+
+
+---
+
+**Q3. What are HTTP status codes? What do the different ranges mean?**
+
+HTTP status codes are 3-digit numbers the server sends back to tell the client what happened with the request. They are grouped into five ranges.
+
+1xx (Informational) — the request was received and is being processed. Rarely seen in practice.
+
+2xx (Success) — the request was successful. 200 OK is the standard success response. 201 Created means a new resource was created (used after POST). 204 No Content means success but there is nothing to return (used after DELETE).
+
+3xx (Redirection) — the client needs to take further action. 301 Moved Permanently means the URL has changed forever. 304 Not Modified means the cached version is still valid, no need to re-download.
+
+4xx (Client Error) — the client made a mistake. 400 Bad Request means invalid input. 401 Unauthorized means the client is not authenticated (not logged in). 403 Forbidden means the client is authenticated but does not have permission. 404 Not Found means the resource does not exist. 429 Too Many Requests means the client is being rate limited.
+
+5xx (Server Error) — the server failed. 500 Internal Server Error means something crashed on the server. 503 Service Unavailable means the server is overloaded or down for maintenance.
+
+The most important ones to know: 200, 201, 204, 400, 401, 403, 404, 422, 429, 500, 503.
+
+---
+
+**Q4. What is a REST API?**
+
+REST (Representational State Transfer) is an architectural style for designing APIs. It is not a protocol or a standard — it is a set of principles that, when followed, make APIs predictable, scalable, and easy to use.
+
+The key principles are: Stateless — every request must contain all the information needed to process it. The server does not store any session state between requests. This makes the server easier to scale because any server can handle any request. Client-Server — the client and server are separate and communicate only through the API. Resource-based — everything is a resource (a user, a post, an order) identified by a URL. You use HTTP methods to perform actions on those resources. Uniform Interface — consistent URL structure and HTTP method usage across the entire API.
+
+A well-designed REST API is intuitive. Just by looking at `GET /api/users/1/posts`, you know it fetches the posts of user 1. You do not need documentation to guess what it does.
 
 ```
-RESTful URL examples:
 GET    /api/users          -- list all users
-GET    /api/users/1        -- get user 1
-POST   /api/users          -- create user
-PUT    /api/users/1        -- update user 1
+GET    /api/users/1        -- get user with id 1
+POST   /api/users          -- create a new user
+PUT    /api/users/1        -- replace user 1
+PATCH  /api/users/1        -- partially update user 1
 DELETE /api/users/1        -- delete user 1
-GET    /api/users/1/posts  -- get posts of user 1
+GET    /api/users/1/posts  -- get all posts by user 1
 ```
 
 ---
